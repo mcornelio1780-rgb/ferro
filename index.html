@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ferro · Financiamos el hierro de la IA</title>
+<meta name="description" content="Modelos financieros, índice de precios de GPU y revisión de deals para robots, GPUs y data centers.">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:title" content="Ferro · Financing the iron behind AI">
+<meta property="og:description" content="Financial models, a GPU price index and deal reviews for robots, GPUs and data centers.">
+<meta property="og:image" content="assets/icon-512.png">
+<link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230F2A4A'/%3E%3Cg fill='%23EDF1F5'%3E%3Cpolygon points='12,13 44,13 49,24 12,24'/%3E%3Cpolygon points='12,28 34,28 39,39 12,39'/%3E%3Cpolygon points='12,43 21,43 26,54 12,54'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --prussian:#0F2A4A;--cyan:#1F4FA3;--paper:#EDF1F5;--oxide:#B4492C;--steel:#8C96A3;--ink:#0A1626;--signal:#1E8F5A;
+  --bg:var(--paper);--fg:var(--ink);--muted:#3B4A5E;--card:#FFFFFF;--line:rgba(15,42,74,.14);
+  --f:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1A2E;--fg:#E6ECF3;--muted:#A9B6C6;--card:#11243D;--line:rgba(237,241,245,.12);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0B1A2E;--fg:#E6ECF3;--muted:#A9B6C6;--card:#11243D;--line:rgba(237,241,245,.12);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(76px + env(safe-area-inset-top,0px))}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--oxide);outline-offset:3px}
+.container{width:min(1200px,100% - 40px);margin-inline:auto}
+h1,h2,h3{font-stretch:125%;letter-spacing:-.03em;line-height:1;margin:0}
+h2{font-size:clamp(34px,5.4vw,68px);font-weight:800;max-width:18ch}
+h3{font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+p{margin:0 0 14px;max-width:62ch}
+.lead{font-size:clamp(18px,1.6vw,21px);line-height:1.5;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 16px var(--f);padding:14px 22px;border-radius:3px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:translateY(1px)}
+.btn.buy{background:var(--oxide);color:#fff}
+.btn.solid{background:var(--cyan);color:#fff}
+.btn.line{border-color:currentColor;background:transparent}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--prussian)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--prussian);color:var(--paper)}
+header .container{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--paper)}
+.logo b{font-stretch:125%;font-weight:900;font-size:24px;letter-spacing:-.04em}
+nav.main{display:flex;gap:22px;font-size:15px}
+nav.main a{text-decoration:none;color:#C9D3E0}
+nav.main a:hover{color:#fff}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.lang{display:flex;border:1px solid rgba(237,241,245,.25);border-radius:3px;overflow:hidden}
+.lang button{font:600 13px var(--f);background:transparent;color:#C9D3E0;border:0;padding:7px 9px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--paper);color:var(--prussian)}
+.hdr-right .btn{padding:9px 14px;font-size:14px}
+.hdr-login{border-color:rgba(237,241,245,.4)!important}
+[hidden]{display:none!important}
+.hdr-right .btn{white-space:nowrap}
+@media (max-width:1180px){nav.main{display:none}nav.main.open{display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:var(--prussian);padding:18px 20px;gap:14px}.menu-btn{display:inline-block}}
+.nav-mobile{display:none}
+@media (max-width:620px){nav.main.open .nav-mobile:not([hidden]){display:block;color:#fff!important;font-weight:700}}
+.menu-btn{display:none;background:none;border:0;color:var(--paper);font:600 15px var(--f);cursor:pointer}
+
+/* hero */
+.hero{background:var(--prussian);color:var(--paper);position:relative;overflow:hidden;padding:clamp(56px,9vw,120px) 0 0}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(237,241,245,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(237,241,245,.06) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
+.hero .container{position:relative}
+.hero-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(20px,4vw,56px);align-items:end}
+.hero-mark{width:clamp(80px,14vw,190px)}
+.hero-mark polygon{transform-box:fill-box;transform-origin:left center;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+.hero-mark polygon:nth-child(2){animation-delay:.12s}.hero-mark polygon:nth-child(3){animation-delay:.24s}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hero h1{font-size:clamp(44px,8.6vw,124px);font-weight:900;letter-spacing:-.045em;line-height:.92;max-width:12ch}
+.hero .sub{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:40px;margin-top:44px;align-items:end}
+.hero .sub p{color:#C9D3E0;font-size:clamp(18px,1.6vw,21px);margin:0}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.hero .ctas .line{color:var(--paper)}
+.ticker{margin-top:clamp(48px,7vw,88px);border-top:1px solid rgba(237,241,245,.16);overflow:hidden;white-space:nowrap;position:relative}
+.ticker-track{display:inline-flex;animation:tick 48s linear infinite;padding:18px 0}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+.tk{display:inline-flex;align-items:baseline;gap:10px;padding:0 28px;border-right:1px solid rgba(237,241,245,.12);font-variant-numeric:tabular-nums}
+.tk .n{color:#C9D3E0;font-size:14px}
+.tk .v{font-stretch:115%;font-weight:700;font-size:20px;color:#fff}
+.tk .d{font-size:13px;font-weight:600}
+.up{color:#4FC48F}.dn{color:#E8836A}
+.ticker-note{font-size:12.5px;color:var(--steel);padding:0 0 16px}
+
+/* sections */
+section{padding:clamp(72px,10vw,128px) 0;border-bottom:1px solid var(--line)}
+.chapter{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:15px;margin-bottom:22px}
+.chapter i{display:inline-block;width:28px;height:2px;background:var(--cyan)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,6vw,96px);align-items:start}
+.pains{display:grid;gap:0;border-top:1px solid var(--line);margin-top:8px}
+.pain{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.pain svg{width:36px;height:36px;color:var(--cyan)}
+.pain h3{margin-bottom:6px}
+.pain p{margin:0;color:var(--muted)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:48px;border-top:2px solid var(--prussian)}
+.stat{padding:24px 24px 24px 0;border-bottom:1px solid var(--line)}
+.stat .n{font-stretch:115%;font-weight:900;font-size:clamp(28px,3vw,40px);letter-spacing:-.04em;line-height:1;color:var(--cyan);font-variant-numeric:tabular-nums}
+.stat.key .n{color:var(--oxide)}
+.stat p{margin:10px 0 6px;font-size:15.5px}
+.stat a{font-size:12.5px;color:var(--muted)}
+.solve{margin-top:40px;padding:28px;background:var(--prussian);color:var(--paper);display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.solve b{font-stretch:125%;font-weight:800;font-size:clamp(20px,2.4vw,30px);letter-spacing:-.02em;line-height:1.15;display:block}
+.solve p{margin:8px 0 0;color:#C9D3E0}
+@media (max-width:980px){.stats{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.stats{grid-template-columns:1fr}.solve{grid-template-columns:1fr}}
+
+/* compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;margin-top:40px;border:1px solid var(--line);background:var(--card)}
+.compare > div{padding:28px}
+.compare > div + div{border-left:1px solid var(--line)}
+.compare dt{font-size:14px;color:var(--muted);margin-top:14px}
+.compare dd{margin:2px 0 0;font-stretch:112%;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.compare .bad dd{color:var(--oxide)}
+.compare .good dd{color:var(--cyan)}
+
+/* history timeline (real sequence) */
+.history{background:var(--prussian);color:var(--paper)}
+.history .lead{color:#C9D3E0}
+.timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:48px;border-top:2px solid rgba(237,241,245,.25)}
+.era{padding:22px 22px 0 0;position:relative}
+.era::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;background:var(--paper)}
+.era.now::before{background:var(--oxide)}
+.era .y{font-stretch:125%;font-weight:900;font-size:clamp(30px,3.6vw,46px);letter-spacing:-.03em}
+.era h3{margin:8px 0 6px;font-size:19px}
+.era p{color:#C9D3E0;font-size:15.5px}
+
+/* products */
+.products{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:20px;margin-top:44px}
+.prod{background:var(--card);border:1px solid var(--line);padding:28px;display:flex;flex-direction:column;gap:12px}
+.prod.feature{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.prod.feature p,.prod.feature li{color:#E3EBF7}
+.prod .price{font-stretch:125%;font-weight:900;font-size:40px;letter-spacing:-.03em}
+.prod .price small{font-size:15px;font-weight:500;font-stretch:100%;letter-spacing:0}
+.prod ul{margin:0;padding-left:18px;color:var(--muted);font-size:15.5px}
+.prod li{margin:4px 0}
+.prod .btn{margin-top:auto;align-self:flex-start}
+.prod.feature .btn.buy{background:#fff;color:var(--oxide)}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;margin-top:40px;border:1px solid var(--line);background:var(--card)}
+.calc form{padding:28px;display:grid;gap:18px}
+.field label{display:flex;justify-content:space-between;font-size:15px;font-weight:600;margin-bottom:8px}
+.field output{font-variant-numeric:tabular-nums;color:var(--cyan);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+.calc .out{background:var(--prussian);color:var(--paper);padding:28px;display:flex;flex-direction:column;gap:18px;justify-content:center}
+.calc .big{font-stretch:125%;font-weight:900;font-size:clamp(48px,6vw,76px);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.calc .row{display:flex;justify-content:space-between;border-top:1px solid rgba(237,241,245,.14);padding-top:10px;font-variant-numeric:tabular-nums}
+.calc .row span{color:#C9D3E0}
+.calc .note{font-size:13px;color:var(--steel)}
+.calc .out a{color:#fff}
+
+/* ICP */
+.icps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:40px}
+.icp{border-top:3px solid var(--prussian);padding-top:18px}
+.icp h3{font-size:19px;margin-bottom:8px}
+.icp p{color:var(--muted);font-size:15.5px}
+
+/* pricing */
+.plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:40px}
+.plan{background:var(--card);border:1px solid var(--line);padding:24px;display:flex;flex-direction:column;gap:10px}
+.plan.hl{border:2px solid var(--oxide)}
+.plan .p{font-stretch:125%;font-weight:900;font-size:36px;letter-spacing:-.03em}
+.plan .p small{font-size:14px;font-weight:500;font-stretch:100%;letter-spacing:0;color:var(--muted)}
+.plan p{font-size:15px;color:var(--muted);margin:0}
+.plan .btn{margin-top:auto;padding:12px 16px;font-size:15px}
+.paynote{display:flex;gap:10px;align-items:center;margin-top:20px;font-size:14px;color:var(--muted)}
+
+/* lead form */
+.signup{background:var(--cyan);color:#fff}
+.signup .lead{color:#DCE6F5}
+.form{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;margin-top:28px}
+.form input,.form select{font:16px var(--f);padding:14px;border-radius:3px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;min-width:0}
+.form select option{color:#0A1626}
+.form input::placeholder{color:#C8D6EE}
+.form .btn{background:#fff;color:var(--prussian)}
+.formmsg{margin-top:12px;font-size:15px;min-height:22px}
+.consent{font-size:13px;color:#C8D6EE;margin-top:6px}
+
+/* contact */
+.cform{display:grid;gap:14px;background:var(--card);border:1px solid var(--line);padding:24px}
+.cform label{display:grid;gap:6px;font-size:14px;font-weight:600}
+.cform input,.cform select,.cform textarea{font:16px var(--f);padding:12px;border:1.5px solid var(--line);border-radius:3px;background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box}
+.cform textarea{resize:vertical}
+.cform .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cform .chk{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:13.5px;color:var(--muted)}
+.cform .chk input{width:16px;height:16px;margin-top:2px;flex:none}
+.cform .chk a{color:var(--cyan)}
+.cform .btn{justify-self:start}
+.formmsg2{font-size:15px;min-height:22px}
+.formmsg2.ok{color:var(--signal)}.formmsg2.err{color:var(--oxide)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+@media (max-width:620px){.cform .row2{grid-template-columns:1fr}}
+
+/* faq */
+.faq{margin-top:32px;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{cursor:pointer;list-style:none;padding:22px 40px 22px 0;font-stretch:110%;font-weight:700;font-size:19px;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:4px;top:18px;font-size:26px;font-weight:400;color:var(--cyan);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{color:var(--muted);padding-bottom:20px}
+
+/* footer */
+footer{background:var(--ink);color:#A9B6C6;padding:56px 0 40px;font-size:14px}
+footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px}
+footer a{color:#C9D3E0;text-decoration:none;display:block;margin:4px 0}
+footer .disc{border-top:1px solid rgba(237,241,245,.1);margin-top:36px;padding-top:20px;font-size:13px}
+
+@media (max-width:980px){
+  nav.main{display:none}
+  nav.main.open{display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:var(--prussian);padding:18px 20px;gap:14px}
+  .menu-btn{display:inline-block}
+  .hero .sub,.split,.calc{grid-template-columns:1fr}
+  .hero .ctas{justify-content:flex-start}
+  .products{grid-template-columns:1fr}
+  .timeline,.icps,.plans{grid-template-columns:1fr 1fr;row-gap:32px}
+  .form{grid-template-columns:1fr 1fr}
+  .form input[type=email]{grid-column:1/-1}
+  footer .cols{grid-template-columns:1fr 1fr}
+}
+@media (max-width:620px){
+  .hdr-right .btn{display:none}
+  .hero-grid{grid-template-columns:1fr}
+  .compare{grid-template-columns:1fr}.compare > div + div{border-left:0;border-top:1px solid var(--line)}
+  .timeline,.icps,.plans,.form{grid-template-columns:1fr}
+  footer .cols{grid-template-columns:1fr}
+}
+</style>
+
+<script src="assets/config.js"></script>
+<script src="assets/ferro.js"></script>
+</head>
+<body>
+<header>
+  <div class="container">
+    <a class="logo" href="#top" aria-label="Ferro">
+      <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><g fill="#EDF1F5"><polygon points="8,8 50,8 56,20 8,20"/><polygon points="8,26 36,26 42,38 8,38"/><polygon points="8,44 18,44 24,56 8,56"/></g></svg>
+      <b>ferro</b>
+    </a>
+    <nav class="main" id="mainnav">
+      <a href="#problema" data-i="nav_problem"></a>
+      <a href="#producto" data-i="nav_product"></a>
+      <a href="#calculadora" data-i="nav_calc"></a>
+      <a href="#precios" data-i="nav_pricing"></a>
+      <a href="#faq" data-i="nav_faq"></a>
+      <a href="#contacto" data-i="ct_ch"></a>
+      <a href="#" class="nav-mobile" id="nav_login" data-i="login"></a>
+      <a href="app.html" class="nav-mobile" id="nav_app" data-app-link data-i="open_app" hidden></a>
+    </nav>
+    <div class="hdr-right">
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button data-lang="es">ES</button><button data-lang="en">EN</button><button data-lang="pt">PT</button><button data-lang="fr">FR</button>
+      </div>
+      <button class="btn line hdr-login" type="button" id="hdr_login" data-i="login" style="color:var(--paper)"></button>
+      <a class="btn solid hdr-app" id="hdr_app" href="app.html" data-i="open_app" hidden></a>
+      <a class="btn buy" data-buy="kit" data-medium="header" href="#precios" data-i="nav_cta"></a>
+      <button class="menu-btn" aria-controls="mainnav" aria-expanded="false" data-i="menu"></button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" aria-labelledby="h1">
+  <div class="container">
+    <div class="hero-grid">
+      <svg class="hero-mark" viewBox="0 0 64 64" aria-hidden="true"><g fill="#EDF1F5"><polygon points="8,8 50,8 56,20 8,20"/><polygon points="8,26 36,26 42,38 8,38"/><polygon points="8,44 18,44 24,56 8,56" fill="#B4492C"/></g></svg>
+      <h1 id="h1" data-i="hero_h"></h1>
+    </div>
+    <div class="sub">
+      <p data-i="hero_p"></p>
+      <div class="ctas">
+        <a class="btn buy" data-buy="kit" href="#precios" data-i="cta_kit"></a>
+        <a class="btn line" href="app.html" data-app-link data-i="try_app"></a>
+      </div>
+    </div>
+  </div>
+  <div class="ticker" aria-label="Índice ilustrativo">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+  <div class="container ticker-note" data-i="ticker_note"></div>
+</section>
+
+<section id="problema">
+  <div class="container">
+    <div class="chapter"><i></i><span data-i="ch1"></span></div>
+    <div class="split">
+      <div>
+        <h2 data-i="prob_h"></h2>
+      </div>
+      <div>
+        <p class="lead" data-i="prob_p"></p>
+        <div class="pains">
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="7" width="16" height="12"/><path d="M9 7V4h6v3M8 12h2M14 12h2M9 16h6"/></svg><div><h3 data-i="p1h"></h3><p data-i="p1p"></p></div></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 17l5-6 4 3 5-7 4 4"/><path d="M3 21h18"/></svg><div><h3 data-i="p2h"></h3><p data-i="p2p"></p></div></div>
+          <div class="pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h7v7H4zM13 11h7v7h-7z"/><path d="M11 9h3M10 15h3"/></svg><div><h3 data-i="p3h"></h3><p data-i="p3p"></p></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="compare">
+      <div class="bad"><h3 data-i="cmp_bank"></h3><dl><dt data-i="cmp_l1"></dt><dd data-i="cmp_b1"></dd><dt data-i="cmp_l2"></dt><dd data-i="cmp_b2"></dd><dt data-i="cmp_l3"></dt><dd data-i="cmp_b3"></dd></dl></div>
+      <div class="good"><h3 data-i="cmp_ferro"></h3><dl><dt data-i="cmp_l1"></dt><dd data-i="cmp_f1"></dd><dt data-i="cmp_l2"></dt><dd data-i="cmp_f2"></dd><dt data-i="cmp_l3"></dt><dd data-i="cmp_f3"></dd></dl></div>
+    </div>
+    <h3 style="margin-top:72px;font-size:clamp(24px,2.6vw,32px);font-stretch:125%;font-weight:800;letter-spacing:-.02em" data-i="num_h"></h3>
+    <div class="stats">
+      <div class="stat key"><div class="n" data-i="n1"></div><p data-i="l1"></p><a href="https://prod-mssip.morganstanley.com/content/dam/msdotcom/en/assets/pdfs/Research_Bridging-Data-Center-Gap.pdf" target="_blank" rel="noopener">Morgan Stanley</a></div>
+      <div class="stat"><div class="n" data-i="n2"></div><p data-i="l2"></p><a href="https://evertiq.com/news/2026-05-06-ai-boom-pushes-hyperscaler-capex-towards-usd-830-billion-in-2026" target="_blank" rel="noopener">TrendForce</a></div>
+      <div class="stat"><div class="n" data-i="n3"></div><p data-i="l3"></p><a href="https://cryptobriefing.com/h100-rental-prices-slide-ornn-ai/" target="_blank" rel="noopener">Ornn Compute Price Index</a></div>
+      <div class="stat"><div class="n" data-i="n4"></div><p data-i="l4"></p><a href="https://ifr.org/ifr-press-releases/news/global-robot-demand-in-factories-doubles-over-10-years?stream=top" target="_blank" rel="noopener">IFR World Robotics 2025</a></div>
+      <div class="stat"><div class="n" data-i="n5"></div><p data-i="l5"></p><a href="https://www.mmh.com/article/industry_horizon_report_shows_equipment_finance_industry_expanded_to_1.5_trillion" target="_blank" rel="noopener">ELFA</a></div>
+      <div class="stat"><div class="n" data-i="n6"></div><p data-i="l6"></p><a href="https://news.bloomberglaw.com/capital-markets/coreweave-raises-8-5-billion-gpu-loan-backed-by-meta-deal" target="_blank" rel="noopener">Bloomberg Law</a></div>
+    </div>
+    <div class="solve">
+      <svg width="56" height="56" viewBox="0 0 64 64" aria-hidden="true"><g fill="#EDF1F5"><polygon points="8,8 50,8 56,20 8,20"/><polygon points="8,26 36,26 42,38 8,38"/><polygon points="8,44 18,44 24,56 8,56" fill="#B4492C"/></g></svg>
+      <div><b data-i="solve_h"></b><p data-i="solve_p"></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="history">
+  <div class="container">
+    <div class="chapter" style="color:#C9D3E0"><i style="background:#EDF1F5"></i><span data-i="ch2"></span></div>
+    <h2 data-i="hist_h"></h2>
+    <p class="lead" style="margin-top:20px" data-i="hist_p"></p>
+    <div class="timeline">
+      <div class="era"><div class="y">1850</div><h3 data-i="e1h"></h3><p data-i="e1p"></p></div>
+      <div class="era"><div class="y">1900</div><h3 data-i="e2h"></h3><p data-i="e2p"></p></div>
+      <div class="era"><div class="y">1990</div><h3 data-i="e3h"></h3><p data-i="e3p"></p></div>
+      <div class="era now"><div class="y">2026</div><h3 data-i="e4h"></h3><p data-i="e4p"></p></div>
+    </div>
+  </div>
+</section>
+
+<section id="producto">
+  <div class="container">
+    <div class="chapter"><i></i><span data-i="ch3"></span></div>
+    <h2 data-i="prod_h"></h2>
+    <div class="products">
+      <article class="prod feature">
+        <h3 data-i="kit_t"></h3>
+        <div class="price">$59 <small data-i="once"></small></div>
+        <p data-i="kit_p"></p>
+        <ul><li data-i="kit_l1"></li><li data-i="kit_l2"></li><li data-i="kit_l3"></li><li data-i="kit_l4"></li></ul>
+        <a class="btn buy" data-buy="kit" href="#" data-i="buy_kit"></a>
+      </article>
+      <article class="prod">
+        <h3 data-i="rev_t"></h3>
+        <div class="price">$249 <small data-i="once"></small></div>
+        <p data-i="rev_p"></p>
+        <ul><li data-i="rev_l1"></li><li data-i="rev_l2"></li><li data-i="rev_l3"></li></ul>
+        <a class="btn solid" data-buy="review" href="#" data-i="buy_rev"></a>
+      </article>
+      <article class="prod">
+        <h3 data-i="idx_t"></h3>
+        <div class="price">$0 <small data-i="idx_free"></small></div>
+        <p data-i="idx_p"></p>
+        <ul><li data-i="idx_l1"></li><li data-i="idx_l2"></li><li data-i="idx_l3"></li></ul>
+        <a class="btn line" href="#suscribirse" data-i="cta_index"></a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="calculadora">
+  <div class="container">
+    <div class="chapter"><i></i><span data-i="ch4"></span></div>
+    <h2 data-i="calc_h"></h2>
+    <p class="lead" style="margin-top:18px" data-i="calc_p"></p>
+    <div class="calc">
+      <form onsubmit="return false" aria-label="Calculadora">
+        <div class="field"><label for="c_price"><span data-i="c_price"></span><output id="o_price"></output></label><input type="range" id="c_price" min="20000" max="500000" step="5000" value="180000"></div>
+        <div class="field"><label for="c_fee"><span data-i="c_fee"></span><output id="o_fee"></output></label><input type="range" id="c_fee" min="1000" max="25000" step="250" value="9000"></div>
+        <div class="field"><label for="c_util"><span data-i="c_util"></span><output id="o_util"></output></label><input type="range" id="c_util" min="20" max="100" step="1" value="70"></div>
+        <div class="field"><label for="c_opex"><span data-i="c_opex"></span><output id="o_opex"></output></label><input type="range" id="c_opex" min="0" max="8000" step="100" value="1200"></div>
+      </form>
+      <div class="out" aria-live="polite">
+        <div><div class="calc-lbl" data-i="r_payback" style="color:#C9D3E0"></div><div class="big" id="r_payback"></div></div>
+        <div class="row"><span data-i="r_net"></span><b id="r_net"></b></div>
+        <div class="row"><span data-i="r_36"></span><b id="r_36"></b></div>
+        <div class="row"><span data-i="r_be"></span><b id="r_be"></b></div>
+        <div class="note" data-i="r_note"></div>
+        <a href="app.html" data-app-link data-i="r_full"></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="chapter"><i></i><span data-i="ch5"></span></div>
+    <h2 data-i="icp_h"></h2>
+    <div class="icps">
+      <div class="icp"><h3 data-i="i1h"></h3><p data-i="i1p"></p></div>
+      <div class="icp"><h3 data-i="i2h"></h3><p data-i="i2p"></p></div>
+      <div class="icp"><h3 data-i="i3h"></h3><p data-i="i3p"></p></div>
+      <div class="icp"><h3 data-i="i4h"></h3><p data-i="i4p"></p></div>
+    </div>
+  </div>
+</section>
+
+<section id="precios">
+  <div class="container">
+    <div class="chapter"><i></i><span data-i="ch6"></span></div>
+    <h2 data-i="price_h"></h2>
+    <div class="plans">
+      <div class="plan"><h3 data-i="pl0"></h3><div class="p">$0</div><p data-i="pl0p"></p><a class="btn line" href="#suscribirse" data-i="pl0b"></a></div>
+      <div class="plan hl"><h3 data-i="pl1"></h3><div class="p">$59 <small data-i="once"></small></div><p data-i="pl1p"></p><a class="btn buy" data-buy="kit" href="#" data-i="buy_kit"></a></div>
+      <div class="plan"><h3 data-i="pl2"></h3><div class="p">$249 <small data-i="once"></small></div><p data-i="pl2p"></p><a class="btn solid" data-buy="review" href="#" data-i="buy_rev"></a></div>
+      <div class="plan"><h3 data-i="pl3"></h3><div class="p">$99 <small data-i="month"></small></div><p data-i="pl3p"></p><a class="btn solid" data-buy="pro" href="#" data-i="pl3b"></a></div>
+    </div>
+    <div class="paynote"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="10" width="16" height="10"/><path d="M8 10V7a4 4 0 018 0v3"/></svg><span data-i="paynote"></span></div>
+  </div>
+</section>
+
+<section class="signup" id="suscribirse">
+  <div class="container">
+    <h2 data-i="sub_h"></h2>
+    <p class="lead" style="margin-top:18px" data-i="sub_p"></p>
+    <form class="form" id="leadform" novalidate>
+      <label class="sr" for="f_email" style="position:absolute;left:-9999px">Email</label>
+      <input type="email" id="f_email" required autocomplete="email" data-ph="f_email">
+      <select id="f_country" aria-label="País"></select>
+      <select id="f_role" aria-label="Rol"></select>
+      <button class="btn" type="submit" data-i="f_btn"></button>
+    </form>
+    <div class="formmsg" id="formmsg" role="status"></div>
+    <p class="consent" data-i="consent"></p>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="container">
+    <div class="chapter"><i></i><span data-i="ct_ch"></span></div>
+    <div class="split">
+      <div><h2 data-i="ct_h"></h2><p class="lead" style="margin-top:18px" data-i="ct_p"></p><p style="margin-top:18px"><a id="mailto2" href="mailto:manyosa@limly.io">manyosa@limly.io</a></p></div>
+      <form class="cform" id="contactform" novalidate>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="row2"><label><span data-i="ct_name"></span><input name="name" autocomplete="name"></label><label><span data-i="ct_email"></span><input name="email" type="email" autocomplete="email" required></label></div>
+        <div class="row2"><label><span data-i="ct_company"></span><input name="company" autocomplete="organization"></label><label><span data-i="ct_topic"></span><select name="topic" id="ct_topic"></select></label></div>
+        <label><span data-i="ct_msg"></span><textarea name="message" rows="5" required maxlength="5000"></textarea></label>
+        <label class="chk"><input type="checkbox" name="consent" required><span id="ct_consent"></span></label>
+        <button class="btn solid" type="submit" data-i="ct_btn"></button>
+        <div class="formmsg2" id="ctmsg" role="status"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container" style="max-width:860px">
+    <div class="chapter"><i></i><span data-i="ch7"></span></div>
+    <h2 data-i="faq_h"></h2>
+    <div class="faq" id="faqlist"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="cols">
+      <div>
+        <a class="logo" href="#top" style="margin-bottom:12px"><svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><g fill="#EDF1F5"><polygon points="8,8 50,8 56,20 8,20"/><polygon points="8,26 36,26 42,38 8,38"/><polygon points="8,44 18,44 24,56 8,56"/></g></svg><b>ferro</b></a>
+        <p data-i="foot_p"></p>
+        <a id="mailto" href="mailto:manyosa@limly.io">manyosa@limly.io</a>
+      </div>
+      <div><b style="color:#fff" data-i="foot_prod"></b><a href="#producto">Ferro Kit</a><a href="#producto">Ferro Review</a><a href="#suscribirse">Ferro Index</a><a href="app.html" data-app-link>App</a></div>
+      <div><b style="color:#fff" data-i="foot_legal"></b><a href="legal.html#terms" data-legal="terms" data-i="terms"></a><a href="legal.html#privacy" data-legal="privacy" data-i="privacy"></a><a href="legal.html#ai" data-legal="ai" data-i="ai_reg"></a><a href="legal.html#refunds" data-legal="refunds" data-i="refunds"></a><a href="legal.html#cookies" data-legal="cookies" data-i="cookies"></a><a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a><a href="https://substack.com/" target="_blank" rel="noopener">Substack</a></div>
+    </div>
+    <div class="disc"><span data-i="disc"></span> <span id="legal_line"></span></div>
+  </div>
+</footer>
+
+<script>
+const CONFIG=window.FERRO_CONFIG||{};
+
+const T={
+es:{login:"Ingresar",open_app:"Abrir la app",try_app:"Probar la app gratis",ct_ch:"Contacto",ct_h:"¿Una pregunta o un deal en mente?",ct_p:"Escríbenos. Respondemos en menos de 48 horas hábiles y en tu idioma. Tu mensaje queda registrado de forma segura.",ct_name:"Nombre",ct_email:"Correo",ct_company:"Empresa",ct_topic:"Tema",ct_msg:"Mensaje",ct_btn:"Enviar mensaje",ct_ok:"Recibido. Te responderemos a {e} en menos de 48 horas hábiles.",ct_err:"No pudimos enviar tu mensaje. Escríbenos a {m}.",ct_need:"Completa tu correo y el mensaje, y acepta la política de privacidad.",ct_consent:"Acepto que Ferro use estos datos solo para responder mi consulta, según la {p}.",pp:"Política de privacidad",ai_reg:"Uso de IA y regulación",cookies:"Cookies",ok:"Listo. Te sumaste al índice Ferro.",topics:["Pregunta general", "Ferro Kit", "Ferro Review (revisión de deal)", "Index Pro", "Briefing LatAm", "Prensa o alianzas"],num_h:'El problema, en números.',n1:'US$1,5 billones',l1:'Brecha de financiamiento de data centers hasta 2028: la mitad del gasto no la pagan los gigantes tecnológicos.',n2:'US$830.000 M',l2:'Inversión prevista en 2026 de los 9 mayores proveedores de nube, +79% en un año.',n3:'+40%',l3:'Lo que subió el contrato de alquiler de una GPU H100 en cinco meses. Sin precio estable no hay garantía que valuar.',n4:'542.000',l4:'Robots industriales instalados en 2024, el doble que hace 10 años. Cada uno necesita financiamiento.',n5:'US$1,51 billones',l5:'Equipos financiados en EE. UU. en 2025. El leasing existe, pero todavía no sabe valorar robots ni GPUs.',n6:'US$8.500 M',l6:'El mayor préstamo respaldado por GPUs. Funciona para los gigantes; Ferro lo lleva a operadores medianos.',solve_h:'Ferro convierte una máquina en números que un prestamista firma.',solve_p:'Modelos de flujo de caja por activo, un índice de precios público y revisión de deals: el idioma común entre quien construye máquinas y quien las financia.',nav_problem:'Problema',nav_product:'Producto',nav_calc:'Calculadora',nav_pricing:'Precios',nav_faq:'Preguntas',nav_cta:'Comprar kit',menu:'Menú',
+hero_h:'Financiamos el hierro de la inteligencia artificial.',
+hero_p:'Modelos financieros, un índice de precios de GPU y revisión de deals para quienes construyen o financian robots, GPUs y data centers.',
+cta_kit:'Comprar Ferro Kit · $59',cta_index:'Recibir el índice gratis',
+ticker_note:'Valores ilustrativos para mostrar el formato. El índice real se publica cada lunes con fuente y fecha.',
+ch1:'El problema',prob_h:'Un banco evalúa un robot como si fuera un montacargas.',
+prob_p:'Un robot cobra todos los meses. Una GPU se alquila por hora. Un data center vende megavatios. Pero el crédito sigue mirando el balance de la empresa, no lo que produce la máquina. Sin datos de utilización ni de valor residual, el capital llega tarde, caro o no llega.',
+p1h:'Sin datos del activo',p1p:'Nadie mide cuánto trabaja la máquina ni cuánto vale al final del contrato.',
+p2h:'Precios opacos',p2p:'El alquiler de GPU cambia cada semana y no hay una referencia pública confiable.',
+p3h:'Dos idiomas que no se hablan',p3p:'Los ingenieros hablan de uptime; los financistas, de flujo de caja. Nadie traduce.',
+cmp_bank:'Cómo lo ve un banco hoy',cmp_ferro:'Cómo lo ve Ferro',cmp_l1:'Qué evalúa',cmp_l2:'Con qué datos',cmp_l3:'Resultado',
+cmp_b1:'Balance de la startup',cmp_b2:'Ninguno sobre el robot',cmp_b3:'“Garantía personal, por favor”',
+cmp_f1:'Flujo de caja del activo',cmp_f2:'Utilización y valor residual',cmp_f3:'Estructura en tramos que un prestamista entiende',
+ch2:'Por qué ahora',hist_h:'Cada infraestructura creó sus propias finanzas.',
+hist_p:'No es una idea nueva. Cada vez que el mundo construyó algo enorme y físico, apareció una industria financiera nueva para pagarlo. La IA física es la siguiente.',
+e1h:'Ferrocarriles',e1p:'Nacen los bonos corporativos y la banca de inversión moderna.',
+e2h:'Electricidad',e2p:'Las utilities y el financiamiento de proyectos de largo plazo.',
+e3h:'Telecomunicaciones',e3p:'Deuda para torres, fibra y espectro a escala global.',
+e4h:'IA física',e4p:'Robots, GPUs y data centers. Los instrumentos todavía no existen. Ferro los está construyendo.',
+ch3:'Producto',prod_h:'Empieza con los números correctos.',
+kit_t:'Ferro Kit',once:'pago único',month:'/ mes',
+kit_p:'Tres modelos financieros profesionales en Excel y Google Sheets, listos para cambiar tus números y presentar.',
+kit_l1:'Robot como servicio (RaaS): flujo de caja, payback y valor residual',kit_l2:'Leasing de GPU: tarifa por hora, utilización y riesgo de precio',kit_l3:'Data center modular: costo por MW y escenarios',kit_l4:'Video corto que explica cada pestaña',
+buy_kit:'Comprar Ferro Kit',
+rev_t:'Ferro Review',rev_p:'Revisamos tu memo de deuda o tu modelo antes de que lo vea un prestamista.',
+rev_l1:'Reporte PDF en 72 horas',rev_l2:'Supuestos débiles marcados y corregidos',rev_l3:'Preguntas que hará el comité de crédito',buy_rev:'Pedir revisión',
+idx_t:'Ferro Index',idx_free:'gratis',idx_p:'Precios públicos de alquiler de GPU, consolidados cada lunes con fuente y fecha.',
+idx_l1:'H100, H200, A100, L40S y más',idx_l2:'Tendencia semanal en un gráfico',idx_l3:'Versión Pro con histórico descargable',
+ch4:'Calculadora',calc_h:'¿En cuánto tiempo se paga un robot?',
+calc_p:'Mueve los valores. Esta es la versión corta del modelo RaaS del kit.',
+c_price:'Precio del robot',c_fee:'Tarifa mensual al cliente',c_util:'Utilización',c_opex:'Costo operativo mensual',
+r_payback:'Se paga en',r_net:'Ingreso neto mensual',r_36:'Ingreso neto en 36 meses',r_be:'Utilización mínima para pagarse en 36 meses',
+r_note:'Simplificado: sin intereses, impuestos ni valor residual. El modelo completo los incluye.',r_full:'Abrir el modelo completo',months:'meses',never:'No se paga',
+ch5:'Para quién',icp_h:'Para quienes construyen máquinas y para quienes las financian.',
+i1h:'Fundadores de robótica',i1p:'Tienes contratos RaaS y necesitas financiar la flota sin regalar equity.',
+i2h:'Operadores de GPU',i2p:'Compras o alquilas capacidad y necesitas saber a qué precio revender.',
+i3h:'Analistas de crédito',i3p:'Buscas exposición a infraestructura de IA con datos del activo, no solo de la empresa.',
+i4h:'Leasing y fintech',i4p:'Quieres financiar equipos tecnológicos y necesitas valorar la máquina como garantía.',
+ch6:'Precios',price_h:'Precios simples, en dólares.',
+pl0:'Índice gratis',pl0p:'El índice de GPU cada lunes en tu correo.',pl0b:'Suscribirme',
+pl1:'Ferro Kit',pl1p:'Los tres modelos y el video. Acceso inmediato.',
+pl2:'Ferro Review',pl2p:'Revisión experta de tu memo o modelo en 72 h.',
+pl3:'Index Pro',pl3p:'Histórico descargable, benchmarks de robots y alertas.',pl3b:'Empezar Pro',
+paynote:'Pago seguro con Polar (Kit e Index Pro) y Stripe (servicios): aceptan tarjetas internacionales y calculan los impuestos de tu país. Ferro nunca ve tu tarjeta.',
+sub_h:'El índice Ferro, cada lunes en tu correo.',sub_p:'Precios de GPU, un deal explicado y una cifra para pensar. Cinco minutos de lectura, gratis.',
+f_email:'tu@empresa.com',f_btn:'Suscribirme',f_country:'País',f_role:'Rol',
+roles:['Fundador/a','Operador de GPU','Inversión / crédito','Leasing / banca','Otro'],
+bad:'Escribe un correo válido, por ejemplo nombre@empresa.com.',
+consent:'Al suscribirte aceptas recibir el boletín. Puedes darte de baja con un clic en cualquier correo.',
+ch7:'Preguntas',faq_h:'Preguntas frecuentes',
+faq:[['¿Necesito una cuenta para usar la app?','La cuenta es gratis. Puedes entrar con Google o con tu correo: te enviamos un enlace para activar la cuenta. Así guardamos tus escenarios y te avisamos de novedades del índice.'],['¿Dónde se guardan mis datos?','En la base de datos de Ferro alojada en Supabase, con conexión cifrada y acceso restringido. Los pagos los procesa Polar; Ferro nunca ve tu tarjeta. Detalles en la Política de privacidad.'],['¿Esto es asesoría de inversión?','No. Ferro publica contenido educativo, modelos y datos públicos. No recomendamos inversiones ni ofrecemos valores.'],
+['¿En qué formato llega el kit?','Recibes un enlace inmediato a los archivos de Excel y Google Sheets y al video, apenas se confirma el pago.'],
+['¿Sirve fuera de Estados Unidos?','Sí. Los modelos están en dólares con moneda y tasa configurables, y el material está en español, inglés, portugués y francés.'],
+['¿De dónde salen los precios del índice?','De precios que los proveedores publican en sus páginas. Cada dato lleva fuente y fecha.'],
+['¿Ferro presta dinero?','Todavía no. Hoy entregamos datos, modelos y revisión. La conexión con financistas llegará más adelante, con la estructura legal adecuada.'],
+['¿Qué pasa si el kit no me sirve?','Escríbenos dentro de los 14 días posteriores a la compra y lo resolvemos.']],
+foot_p:'Datos, modelos y deals para la infraestructura física de la IA.',foot_prod:'Producto',foot_legal:'Legal',terms:'Términos',privacy:'Privacidad',refunds:'Reembolsos',
+disc:'© 2026 Ferro, una marca de Limly LLC (Delaware, EE. UU.). Contenido educativo. No es asesoría de inversión ni oferta de valores. Los resultados de las calculadoras son estimaciones con fines ilustrativos.'},
+
+en:{login:"Log in",open_app:"Open the app",try_app:"Try the app free",ct_ch:"Contact",ct_h:"A question or a deal in mind?",ct_p:"Write to us. We reply within 48 business hours, in your language. Your message is stored securely.",ct_name:"Name",ct_email:"Email",ct_company:"Company",ct_topic:"Topic",ct_msg:"Message",ct_btn:"Send message",ct_ok:"Got it. We’ll reply to {e} within 48 business hours.",ct_err:"We couldn’t send your message. Email us at {m}.",ct_need:"Fill in your email and message, and accept the privacy policy.",ct_consent:"I agree that Ferro may use this data only to answer my request, under the {p}.",pp:"Privacy policy",ai_reg:"AI use & regulation",cookies:"Cookies",ok:"Done. You’re on the Ferro index list.",topics:["General question", "Ferro Kit", "Ferro Review (deal review)", "Index Pro", "LatAm briefing", "Press or partnerships"],num_h:'The problem, in numbers.',n1:'$1.5 trillion',l1:'Data center financing gap through 2028: half of the spend isn’t covered by Big Tech’s own cash.',n2:'$830 billion',l2:'Planned 2026 capex of the 9 largest cloud providers, up 79% in a year.',n3:'+40%',l3:'How much one-year H100 rental contracts rose in five months. No stable price, no collateral value.',n4:'542,000',l4:'Industrial robots installed in 2024, double ten years earlier. Every one of them needs financing.',n5:'$1.51 trillion',l5:'Equipment financed in the US in 2025. Leasing exists, but it can’t yet value robots or GPUs.',n6:'$8.5 billion',l6:'The largest GPU-backed loan to date. It works for giants; Ferro brings it to mid-sized operators.',solve_h:'Ferro turns a machine into numbers a lender can sign.',solve_p:'Asset-level cash-flow models, a public price index and deal reviews: a common language between those who build machines and those who finance them.',nav_problem:'Problem',nav_product:'Product',nav_calc:'Calculator',nav_pricing:'Pricing',nav_faq:'FAQ',nav_cta:'Buy the kit',menu:'Menu',
+hero_h:'Financing the iron behind artificial intelligence.',
+hero_p:'Financial models, a GPU price index and deal reviews for the people who build or finance robots, GPUs and data centers.',
+cta_kit:'Get the Ferro Kit · $59',cta_index:'Get the free index',
+ticker_note:'Illustrative values to show the format. The real index is published every Monday with source and date.',
+ch1:'The problem',prob_h:'Banks underwrite a robot like it’s a forklift.',
+prob_p:'A robot earns every month. A GPU rents by the hour. A data center sells megawatts. Yet credit still looks at the company’s balance sheet, not at what the machine produces. Without utilization or residual value data, capital arrives late, expensive, or not at all.',
+p1h:'No asset data',p1p:'Nobody tracks how hard the machine works or what it’s worth when the contract ends.',
+p2h:'Opaque prices',p2p:'GPU rental prices move every week and there’s no trusted public benchmark.',
+p3h:'Two languages that don’t meet',p3p:'Engineers talk uptime; lenders talk cash flow. Nobody translates.',
+cmp_bank:'How a bank sees it today',cmp_ferro:'How Ferro sees it',cmp_l1:'What gets evaluated',cmp_l2:'With what data',cmp_l3:'Outcome',
+cmp_b1:'The startup’s balance sheet',cmp_b2:'None on the robot',cmp_b3:'“Personal guarantee, please”',
+cmp_f1:'The asset’s cash flow',cmp_f2:'Utilization and residual value',cmp_f3:'A tranche structure lenders understand',
+ch2:'Why now',hist_h:'Every infrastructure built its own finance.',
+hist_p:'This isn’t new. Every time the world built something huge and physical, a new financial industry appeared to pay for it. Physical AI is next.',
+e1h:'Railroads',e1p:'Corporate bonds and modern investment banking are born.',
+e2h:'Electricity',e2p:'Utilities and long-term project finance.',
+e3h:'Telecom',e3p:'Debt for towers, fiber and spectrum at global scale.',
+e4h:'Physical AI',e4p:'Robots, GPUs and data centers. The instruments don’t exist yet. Ferro is building them.',
+ch3:'Product',prod_h:'Start with the right numbers.',
+kit_t:'Ferro Kit',once:'one-time',month:'/ month',
+kit_p:'Three professional financial models in Excel and Google Sheets, ready for your numbers and your lender.',
+kit_l1:'Robot-as-a-Service: cash flow, payback and residual value',kit_l2:'GPU leasing: hourly rate, utilization and price risk',kit_l3:'Modular data center: cost per MW and scenarios',kit_l4:'Short video walking through every tab',
+buy_kit:'Buy the Ferro Kit',
+rev_t:'Ferro Review',rev_p:'We review your debt memo or model before a lender sees it.',
+rev_l1:'PDF report in 72 hours',rev_l2:'Weak assumptions flagged and fixed',rev_l3:'The questions a credit committee will ask',buy_rev:'Request a review',
+idx_t:'Ferro Index',idx_free:'free',idx_p:'Public GPU rental prices, consolidated every Monday with source and date.',
+idx_l1:'H100, H200, A100, L40S and more',idx_l2:'Weekly trend in one chart',idx_l3:'Pro version with downloadable history',
+ch4:'Calculator',calc_h:'How fast does a robot pay for itself?',
+calc_p:'Move the sliders. This is the short version of the kit’s RaaS model.',
+c_price:'Robot price',c_fee:'Monthly fee to customer',c_util:'Utilization',c_opex:'Monthly operating cost',
+r_payback:'Pays back in',r_net:'Net monthly income',r_36:'Net income over 36 months',r_be:'Minimum utilization to pay back in 36 months',
+r_note:'Simplified: no interest, taxes or residual value. The full model includes them.',r_full:'Open the full model',months:'months',never:'Never pays back',
+ch5:'Who it’s for',icp_h:'For those who build machines and those who finance them.',
+i1h:'Robotics founders',i1p:'You have RaaS contracts and need to finance the fleet without giving away equity.',
+i2h:'GPU operators',i2p:'You buy or rent capacity and need to know what price to resell at.',
+i3h:'Credit analysts',i3p:'You want AI infrastructure exposure backed by asset data, not just company data.',
+i4h:'Leasing and fintech',i4p:'You want to finance tech equipment and need to value the machine as collateral.',
+ch6:'Pricing',price_h:'Simple pricing, in dollars.',
+pl0:'Free index',pl0p:'The GPU index in your inbox every Monday.',pl0b:'Subscribe',
+pl1:'Ferro Kit',pl1p:'All three models plus the video. Instant access.',
+pl2:'Ferro Review',pl2p:'Expert review of your memo or model in 72 h.',
+pl3:'Index Pro',pl3p:'Downloadable history, robot benchmarks and alerts.',pl3b:'Start Pro',
+paynote:'Secure checkout with Polar (Kit and Index Pro) and Stripe (services): international cards accepted and local taxes calculated. Ferro never sees your card.',
+sub_h:'The Ferro Index, every Monday in your inbox.',sub_p:'GPU prices, one deal explained and one number to think about. Five-minute read, free.',
+f_email:'you@company.com',f_btn:'Subscribe',f_country:'Country',f_role:'Role',
+roles:['Founder','GPU operator','Investing / credit','Leasing / banking','Other'],
+bad:'Enter a valid email, like name@company.com.',
+consent:'By subscribing you agree to receive the newsletter. Unsubscribe in one click from any email.',
+ch7:'Questions',faq_h:'Frequently asked questions',
+faq:[['Do I need an account to use the app?','Accounts are free. Sign in with Google or with your email: we send you a link to activate the account. That lets us save your scenarios and notify you about the index.'],['Where is my data stored?','In Ferro’s database hosted on Supabase, with encrypted connections and restricted access. Payments are processed by Polar; Ferro never sees your card. Details in the Privacy policy.'],['Is this investment advice?','No. Ferro publishes educational content, models and public data. We don’t recommend investments or offer securities.'],
+['What format is the kit?','You get an instant link to the Excel and Google Sheets files and the video as soon as payment clears.'],
+['Does it work outside the US?','Yes. Models are in dollars with configurable currency and rates, and material is available in English, Spanish, Portuguese and French.'],
+['Where do index prices come from?','From prices providers publish on their own pages. Every data point has a source and date.'],
+['Does Ferro lend money?','Not yet. Today we deliver data, models and reviews. Connecting with lenders comes later, with the right legal structure.'],
+['What if the kit doesn’t work for me?','Email us within 14 days of purchase and we’ll sort it out.']],
+foot_p:'Data, models and deals for the physical infrastructure of AI.',foot_prod:'Product',foot_legal:'Legal',terms:'Terms',privacy:'Privacy',refunds:'Refunds',
+disc:'© 2026 Ferro, a brand of Limly LLC (Delaware, USA). Educational content. Not investment advice or an offer of securities. Calculator results are illustrative estimates.'},
+
+pt:{login:"Entrar",open_app:"Abrir o app",try_app:"Testar o app grátis",ct_ch:"Contato",ct_h:"Uma pergunta ou uma operação em mente?",ct_p:"Escreva para nós. Respondemos em até 48 horas úteis, no seu idioma. Sua mensagem fica registrada com segurança.",ct_name:"Nome",ct_email:"E-mail",ct_company:"Empresa",ct_topic:"Assunto",ct_msg:"Mensagem",ct_btn:"Enviar mensagem",ct_ok:"Recebido. Responderemos para {e} em até 48 horas úteis.",ct_err:"Não foi possível enviar. Escreva para {m}.",ct_need:"Preencha o e-mail e a mensagem e aceite a política de privacidade.",ct_consent:"Aceito que a Ferro use estes dados apenas para responder minha consulta, conforme a {p}.",pp:"Política de privacidade",ai_reg:"Uso de IA e regulação",cookies:"Cookies",ok:"Pronto. Você entrou na lista do índice Ferro.",topics:["Pergunta geral", "Ferro Kit", "Ferro Review (revisão de operação)", "Index Pro", "Briefing LatAm", "Imprensa ou parcerias"],num_h:'O problema, em números.',n1:'US$1,5 trilhão',l1:'Lacuna de financiamento de data centers até 2028: metade do gasto não é coberta pelo caixa das big techs.',n2:'US$830 bilhões',l2:'Investimento previsto em 2026 pelos 9 maiores provedores de nuvem, alta de 79% em um ano.',n3:'+40%',l3:'Quanto subiu o contrato de aluguel de uma GPU H100 em cinco meses. Sem preço estável, não há garantia para avaliar.',n4:'542.000',l4:'Robôs industriais instalados em 2024, o dobro de dez anos atrás. Cada um precisa de financiamento.',n5:'US$1,51 trilhão',l5:'Equipamentos financiados nos EUA em 2025. O leasing existe, mas ainda não sabe avaliar robôs nem GPUs.',n6:'US$8,5 bilhões',l6:'O maior empréstimo garantido por GPUs. Funciona para gigantes; a Ferro leva isso a operadores médios.',solve_h:'A Ferro transforma uma máquina em números que um credor assina.',solve_p:'Modelos de fluxo de caixa por ativo, um índice de preços público e revisão de operações: a língua comum entre quem constrói máquinas e quem as financia.',nav_problem:'Problema',nav_product:'Produto',nav_calc:'Calculadora',nav_pricing:'Preços',nav_faq:'Perguntas',nav_cta:'Comprar o kit',menu:'Menu',
+hero_h:'Financiamos o ferro da inteligência artificial.',
+hero_p:'Modelos financeiros, um índice de preços de GPU e revisão de operações para quem constrói ou financia robôs, GPUs e data centers.',
+cta_kit:'Comprar o Ferro Kit · US$59',cta_index:'Receber o índice grátis',
+ticker_note:'Valores ilustrativos para mostrar o formato. O índice real é publicado toda segunda-feira com fonte e data.',
+ch1:'O problema',prob_h:'O banco avalia um robô como se fosse uma empilhadeira.',
+prob_p:'Um robô fatura todo mês. Uma GPU é alugada por hora. Um data center vende megawatts. Mas o crédito ainda olha o balanço da empresa, não o que a máquina produz. Sem dados de utilização nem de valor residual, o capital chega tarde, caro ou nunca chega.',
+p1h:'Sem dados do ativo',p1p:'Ninguém mede quanto a máquina trabalha nem quanto vale no fim do contrato.',
+p2h:'Preços opacos',p2p:'O aluguel de GPU muda toda semana e não existe uma referência pública confiável.',
+p3h:'Duas línguas que não se falam',p3p:'Engenheiros falam de uptime; financiadores, de fluxo de caixa. Ninguém traduz.',
+cmp_bank:'Como o banco vê hoje',cmp_ferro:'Como a Ferro vê',cmp_l1:'O que avalia',cmp_l2:'Com quais dados',cmp_l3:'Resultado',
+cmp_b1:'O balanço da startup',cmp_b2:'Nenhum sobre o robô',cmp_b3:'“Aval pessoal, por favor”',
+cmp_f1:'O fluxo de caixa do ativo',cmp_f2:'Utilização e valor residual',cmp_f3:'Estrutura em tranches que o credor entende',
+ch2:'Por que agora',hist_h:'Toda infraestrutura criou suas próprias finanças.',
+hist_p:'Não é novidade. Sempre que o mundo construiu algo enorme e físico, surgiu uma nova indústria financeira para pagar por isso. A IA física é a próxima.',
+e1h:'Ferrovias',e1p:'Nascem os títulos corporativos e o banco de investimento moderno.',
+e2h:'Eletricidade',e2p:'As utilities e o project finance de longo prazo.',
+e3h:'Telecomunicações',e3p:'Dívida para torres, fibra e espectro em escala global.',
+e4h:'IA física',e4p:'Robôs, GPUs e data centers. Os instrumentos ainda não existem. A Ferro está construindo.',
+ch3:'Produto',prod_h:'Comece com os números certos.',
+kit_t:'Ferro Kit',once:'pagamento único',month:'/ mês',
+kit_p:'Três modelos financeiros profissionais em Excel e Google Sheets, prontos para seus números e seu credor.',
+kit_l1:'Robô como serviço (RaaS): fluxo de caixa, payback e valor residual',kit_l2:'Leasing de GPU: preço por hora, utilização e risco de preço',kit_l3:'Data center modular: custo por MW e cenários',kit_l4:'Vídeo curto explicando cada aba',
+buy_kit:'Comprar o Ferro Kit',
+rev_t:'Ferro Review',rev_p:'Revisamos seu memorando de dívida ou seu modelo antes que um credor o veja.',
+rev_l1:'Relatório em PDF em 72 horas',rev_l2:'Premissas fracas apontadas e corrigidas',rev_l3:'As perguntas que o comitê de crédito fará',buy_rev:'Pedir revisão',
+idx_t:'Ferro Index',idx_free:'grátis',idx_p:'Preços públicos de aluguel de GPU, consolidados toda segunda com fonte e data.',
+idx_l1:'H100, H200, A100, L40S e mais',idx_l2:'Tendência semanal em um gráfico',idx_l3:'Versão Pro com histórico para download',
+ch4:'Calculadora',calc_h:'Em quanto tempo um robô se paga?',
+calc_p:'Mexa nos valores. Esta é a versão curta do modelo RaaS do kit.',
+c_price:'Preço do robô',c_fee:'Mensalidade cobrada do cliente',c_util:'Utilização',c_opex:'Custo operacional mensal',
+r_payback:'Se paga em',r_net:'Receita líquida mensal',r_36:'Receita líquida em 36 meses',r_be:'Utilização mínima para se pagar em 36 meses',
+r_note:'Simplificado: sem juros, impostos nem valor residual. O modelo completo inclui tudo isso.',r_full:'Abrir o modelo completo',months:'meses',never:'Não se paga',
+ch5:'Para quem',icp_h:'Para quem constrói máquinas e para quem as financia.',
+i1h:'Fundadores de robótica',i1p:'Você tem contratos RaaS e precisa financiar a frota sem entregar equity.',
+i2h:'Operadores de GPU',i2p:'Você compra ou aluga capacidade e precisa saber a que preço revender.',
+i3h:'Analistas de crédito',i3p:'Você busca exposição a infraestrutura de IA com dados do ativo, não só da empresa.',
+i4h:'Leasing e fintech',i4p:'Você quer financiar equipamentos de tecnologia e precisa avaliar a máquina como garantia.',
+ch6:'Preços',price_h:'Preços simples, em dólares.',
+pl0:'Índice grátis',pl0p:'O índice de GPU toda segunda no seu e-mail.',pl0b:'Assinar',
+pl1:'Ferro Kit',pl1p:'Os três modelos e o vídeo. Acesso imediato.',
+pl2:'Ferro Review',pl2p:'Revisão especializada do seu memorando ou modelo em 72 h.',
+pl3:'Index Pro',pl3p:'Histórico para download, benchmarks de robôs e alertas.',pl3b:'Começar o Pro',
+paynote:'Pagamento seguro com a Polar (Kit e Index Pro) e a Stripe (serviços): aceitam cartões internacionais e calculam os impostos do seu país. A Ferro nunca vê seu cartão.',
+sub_h:'O índice Ferro, toda segunda no seu e-mail.',sub_p:'Preços de GPU, uma operação explicada e um número para pensar. Cinco minutos de leitura, grátis.',
+f_email:'voce@empresa.com',f_btn:'Assinar',f_country:'País',f_role:'Função',
+roles:['Fundador/a','Operador de GPU','Investimento / crédito','Leasing / banco','Outro'],
+bad:'Digite um e-mail válido, por exemplo nome@empresa.com.',
+consent:'Ao assinar, você aceita receber a newsletter. Cancele com um clique em qualquer e-mail.',
+ch7:'Perguntas',faq_h:'Perguntas frequentes',
+faq:[['Preciso de uma conta para usar o app?','A conta é grátis. Entre com Google ou com seu e-mail: enviamos um link para ativar a conta. Assim salvamos seus cenários e avisamos sobre o índice.'],['Onde meus dados ficam guardados?','No banco de dados da Ferro hospedado no Supabase, com conexão criptografada e acesso restrito. Os pagamentos são processados pela Polar; a Ferro nunca vê seu cartão. Detalhes na Política de privacidade.'],['Isso é recomendação de investimento?','Não. A Ferro publica conteúdo educativo, modelos e dados públicos. Não recomendamos investimentos nem ofertamos valores mobiliários.'],
+['Em que formato chega o kit?','Você recebe um link imediato para os arquivos em Excel e Google Sheets e para o vídeo, assim que o pagamento é confirmado.'],
+['Funciona fora dos Estados Unidos?','Sim. Os modelos estão em dólares com moeda e taxas configuráveis, e o material está em português, espanhol, inglês e francês.'],
+['De onde vêm os preços do índice?','De preços que os provedores publicam em suas páginas. Cada dado tem fonte e data.'],
+['A Ferro empresta dinheiro?','Ainda não. Hoje entregamos dados, modelos e revisões. A conexão com financiadores virá depois, com a estrutura jurídica adequada.'],
+['E se o kit não servir para mim?','Escreva para nós em até 14 dias após a compra e resolvemos.']],
+foot_p:'Dados, modelos e operações para a infraestrutura física da IA.',foot_prod:'Produto',foot_legal:'Jurídico',terms:'Termos',privacy:'Privacidade',refunds:'Reembolsos',
+disc:'© 2026 Ferro, uma marca da Limly LLC (Delaware, EUA). Conteúdo educativo. Não é recomendação de investimento nem oferta de valores mobiliários. Os resultados das calculadoras são estimativas ilustrativas.'},
+
+fr:{login:"Se connecter",open_app:"Ouvrir l’app",try_app:"Essayer l’app gratuitement",ct_ch:"Contact",ct_h:"Une question ou un dossier en tête ?",ct_p:"Écrivez-nous. Réponse sous 48 heures ouvrées, dans votre langue. Votre message est enregistré de façon sécurisée.",ct_name:"Nom",ct_email:"E-mail",ct_company:"Entreprise",ct_topic:"Sujet",ct_msg:"Message",ct_btn:"Envoyer",ct_ok:"Bien reçu. Nous répondrons à {e} sous 48 heures ouvrées.",ct_err:"Envoi impossible. Écrivez-nous à {m}.",ct_need:"Indiquez votre e-mail et votre message, et acceptez la politique de confidentialité.",ct_consent:"J’accepte que Ferro utilise ces données uniquement pour répondre à ma demande, selon la {p}.",pp:"Politique de confidentialité",ai_reg:"Usage de l’IA et réglementation",cookies:"Cookies",ok:"C’est fait. Vous êtes inscrit à l’indice Ferro.",topics:["Question générale", "Ferro Kit", "Ferro Review (revue de dossier)", "Index Pro", "Briefing Amérique latine", "Presse ou partenariats"],num_h:'Le problème, en chiffres.',n1:'1 500 Md$',l1:'Déficit de financement des data centers d’ici 2028 : la moitié des dépenses n’est pas couverte par la trésorerie des géants.',n2:'830 Md$',l2:'Investissements prévus en 2026 par les 9 plus grands fournisseurs cloud, +79 % en un an.',n3:'+40 %',l3:'La hausse du contrat de location d’un GPU H100 en cinq mois. Sans prix stable, pas de garantie à évaluer.',n4:'542 000',l4:'Robots industriels installés en 2024, deux fois plus qu’il y a dix ans. Chacun doit être financé.',n5:'1 510 Md$',l5:'Équipements financés aux États-Unis en 2025. Le crédit-bail existe, mais ne sait pas encore évaluer robots et GPU.',n6:'8,5 Md$',l6:'Le plus grand prêt garanti par des GPU. Cela marche pour les géants ; Ferro l’apporte aux opérateurs moyens.',solve_h:'Ferro transforme une machine en chiffres qu’un prêteur peut signer.',solve_p:'Modèles de flux de trésorerie par actif, indice de prix public et revue de dossiers : la langue commune entre ceux qui construisent les machines et ceux qui les financent.',nav_problem:'Problème',nav_product:'Produit',nav_calc:'Calculateur',nav_pricing:'Tarifs',nav_faq:'Questions',nav_cta:'Acheter le kit',menu:'Menu',
+hero_h:'Nous finançons le fer de l’intelligence artificielle.',
+hero_p:'Modèles financiers, indice des prix GPU et revue de dossiers pour celles et ceux qui construisent ou financent robots, GPU et data centers.',
+cta_kit:'Acheter le Ferro Kit · 59 $',cta_index:'Recevoir l’indice gratuit',
+ticker_note:'Valeurs illustratives pour montrer le format. Le vrai indice est publié chaque lundi avec source et date.',
+ch1:'Le problème',prob_h:'Une banque évalue un robot comme un chariot élévateur.',
+prob_p:'Un robot facture chaque mois. Un GPU se loue à l’heure. Un data center vend des mégawatts. Pourtant le crédit regarde encore le bilan de l’entreprise, pas ce que produit la machine. Sans données d’utilisation ni de valeur résiduelle, le capital arrive tard, cher, ou jamais.',
+p1h:'Aucune donnée sur l’actif',p1p:'Personne ne mesure combien la machine travaille ni ce qu’elle vaut en fin de contrat.',
+p2h:'Des prix opaques',p2p:'La location de GPU change chaque semaine et il n’existe aucune référence publique fiable.',
+p3h:'Deux langues qui ne se parlent pas',p3p:'Les ingénieurs parlent de disponibilité, les financeurs de flux de trésorerie. Personne ne traduit.',
+cmp_bank:'Ce que voit une banque aujourd’hui',cmp_ferro:'Ce que voit Ferro',cmp_l1:'Ce qui est évalué',cmp_l2:'Avec quelles données',cmp_l3:'Résultat',
+cmp_b1:'Le bilan de la startup',cmp_b2:'Aucune sur le robot',cmp_b3:'« Une caution personnelle, s’il vous plaît »',
+cmp_f1:'Le flux de trésorerie de l’actif',cmp_f2:'Utilisation et valeur résiduelle',cmp_f3:'Une structure en tranches que le prêteur comprend',
+ch2:'Pourquoi maintenant',hist_h:'Chaque infrastructure a créé sa propre finance.',
+hist_p:'Rien de nouveau. Chaque fois que le monde a construit quelque chose d’immense et de physique, une nouvelle industrie financière est née pour le payer. L’IA physique est la suivante.',
+e1h:'Chemins de fer',e1p:'Naissance des obligations d’entreprise et de la banque d’affaires moderne.',
+e2h:'Électricité',e2p:'Les services publics et le financement de projets à long terme.',
+e3h:'Télécoms',e3p:'De la dette pour les pylônes, la fibre et le spectre à l’échelle mondiale.',
+e4h:'IA physique',e4p:'Robots, GPU et data centers. Les instruments n’existent pas encore. Ferro les construit.',
+ch3:'Produit',prod_h:'Commencez avec les bons chiffres.',
+kit_t:'Ferro Kit',once:'paiement unique',month:'/ mois',
+kit_p:'Trois modèles financiers professionnels sous Excel et Google Sheets, prêts pour vos chiffres et votre prêteur.',
+kit_l1:'Robot en tant que service (RaaS) : flux de trésorerie, retour sur investissement et valeur résiduelle',kit_l2:'Location de GPU : prix horaire, utilisation et risque de prix',kit_l3:'Data center modulaire : coût par MW et scénarios',kit_l4:'Courte vidéo qui explique chaque onglet',
+buy_kit:'Acheter le Ferro Kit',
+rev_t:'Ferro Review',rev_p:'Nous relisons votre mémo de dette ou votre modèle avant qu’un prêteur ne le voie.',
+rev_l1:'Rapport PDF en 72 heures',rev_l2:'Hypothèses fragiles signalées et corrigées',rev_l3:'Les questions que posera le comité de crédit',buy_rev:'Demander une revue',
+idx_t:'Ferro Index',idx_free:'gratuit',idx_p:'Prix publics de location de GPU, consolidés chaque lundi avec source et date.',
+idx_l1:'H100, H200, A100, L40S et plus',idx_l2:'Tendance hebdomadaire en un graphique',idx_l3:'Version Pro avec historique téléchargeable',
+ch4:'Calculateur',calc_h:'En combien de temps un robot est-il rentabilisé ?',
+calc_p:'Faites varier les valeurs. C’est la version courte du modèle RaaS du kit.',
+c_price:'Prix du robot',c_fee:'Loyer mensuel facturé au client',c_util:'Taux d’utilisation',c_opex:'Coût d’exploitation mensuel',
+r_payback:'Rentabilisé en',r_net:'Revenu net mensuel',r_36:'Revenu net sur 36 mois',r_be:'Utilisation minimale pour être rentabilisé en 36 mois',
+r_note:'Simplifié : sans intérêts, impôts ni valeur résiduelle. Le modèle complet les inclut.',r_full:'Ouvrir le modèle complet',months:'mois',never:'Jamais rentabilisé',
+ch5:'Pour qui',icp_h:'Pour ceux qui construisent les machines et ceux qui les financent.',
+i1h:'Fondateurs en robotique',i1p:'Vous avez des contrats RaaS et devez financer la flotte sans céder de capital.',
+i2h:'Opérateurs de GPU',i2p:'Vous achetez ou louez de la capacité et devez savoir à quel prix la revendre.',
+i3h:'Analystes crédit',i3p:'Vous cherchez une exposition à l’infrastructure IA fondée sur les données de l’actif.',
+i4h:'Crédit-bail et fintech',i4p:'Vous voulez financer des équipements technologiques et valoriser la machine comme garantie.',
+ch6:'Tarifs',price_h:'Des tarifs simples, en dollars.',
+pl0:'Indice gratuit',pl0p:'L’indice GPU chaque lundi dans votre boîte mail.',pl0b:'S’abonner',
+pl1:'Ferro Kit',pl1p:'Les trois modèles et la vidéo. Accès immédiat.',
+pl2:'Ferro Review',pl2p:'Revue experte de votre mémo ou modèle en 72 h.',
+pl3:'Index Pro',pl3p:'Historique téléchargeable, références robots et alertes.',pl3b:'Passer à Pro',
+paynote:'Paiement sécurisé avec Polar (Kit et Index Pro) et Stripe (services) : cartes internationales acceptées et taxes locales calculées. Ferro ne voit jamais votre carte.',
+sub_h:'L’indice Ferro, chaque lundi dans votre boîte mail.',sub_p:'Prix des GPU, un dossier expliqué et un chiffre à méditer. Cinq minutes de lecture, gratuit.',
+f_email:'vous@entreprise.com',f_btn:'S’abonner',f_country:'Pays',f_role:'Fonction',
+roles:['Fondateur·rice','Opérateur de GPU','Investissement / crédit','Crédit-bail / banque','Autre'],
+bad:'Saisissez une adresse valide, par exemple nom@entreprise.com.',
+consent:'En vous abonnant, vous acceptez de recevoir la newsletter. Désabonnement en un clic dans chaque e-mail.',
+ch7:'Questions',faq_h:'Questions fréquentes',
+faq:[['Faut-il un compte pour utiliser l’app ?','Le compte est gratuit. Connectez-vous avec Google ou avec votre e-mail : nous envoyons un lien d’activation. Cela permet d’enregistrer vos scénarios et de vous informer sur l’indice.'],['Où sont stockées mes données ?','Dans la base de données de Ferro hébergée chez Supabase, avec connexion chiffrée et accès restreint. Les paiements sont traités par Polar ; Ferro ne voit jamais votre carte. Détails dans la Politique de confidentialité.'],['Est-ce un conseil en investissement ?','Non. Ferro publie du contenu éducatif, des modèles et des données publiques. Nous ne recommandons aucun investissement et n’offrons aucun titre.'],
+['Sous quel format arrive le kit ?','Vous recevez un lien immédiat vers les fichiers Excel et Google Sheets et la vidéo dès la confirmation du paiement.'],
+['Est-ce utile hors des États-Unis ?','Oui. Les modèles sont en dollars avec devise et taux configurables, et le contenu existe en français, anglais, espagnol et portugais.'],
+['D’où viennent les prix de l’indice ?','Des prix publiés par les fournisseurs sur leurs propres pages. Chaque donnée a une source et une date.'],
+['Ferro prête-t-il de l’argent ?','Pas encore. Aujourd’hui nous livrons données, modèles et revues. La mise en relation avec des financeurs viendra plus tard, avec la structure juridique adéquate.'],
+['Et si le kit ne me convient pas ?','Écrivez-nous dans les 14 jours suivant l’achat et nous trouverons une solution.']],
+foot_p:'Données, modèles et dossiers pour l’infrastructure physique de l’IA.',foot_prod:'Produit',foot_legal:'Mentions',terms:'Conditions',privacy:'Confidentialité',refunds:'Remboursements',
+disc:'© 2026 Ferro, une marque de Limly LLC (Delaware, États-Unis). Contenu éducatif. Ni conseil en investissement ni offre de titres. Les résultats du calculateur sont des estimations illustratives.'}
+};
+
+const COUNTRIES={es:['Estados Unidos','México','Brasil','España','Francia','Canadá','Reino Unido','Alemania','Chile','Colombia','Perú','Argentina','Portugal','Otro'],
+en:['United States','Mexico','Brazil','Spain','France','Canada','United Kingdom','Germany','Chile','Colombia','Peru','Argentina','Portugal','Other'],
+pt:['Estados Unidos','México','Brasil','Espanha','França','Canadá','Reino Unido','Alemanha','Chile','Colômbia','Peru','Argentina','Portugal','Outro'],
+fr:['États-Unis','Mexique','Brésil','Espagne','France','Canada','Royaume-Uni','Allemagne','Chili','Colombie','Pérou','Argentine','Portugal','Autre']};
+
+let L='es';
+const fmt=(n,l)=>new Intl.NumberFormat({es:'es-ES',en:'en-US',pt:'pt-BR',fr:'fr-FR'}[l],{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+
+function setLang(l){
+  if(!T[l])l='es';L=l;document.documentElement.lang=l;
+  if(window.Ferro)Ferro.setLang(l);else{try{localStorage.setItem('ferro_lang',l)}catch(e){}}
+  const tp=document.getElementById('ct_topic');if(tp){const cur=tp.value;tp.innerHTML=T[l].topics.map((x,i)=>`<option value="${T.en.topics[i]}">${x}</option>`).join('');if(cur)tp.value=cur;}
+  const legal=(h)=>window.Ferro?Ferro.legalUrl(h):'legal.html#'+h;
+  document.querySelectorAll('[data-legal]').forEach(a=>a.href=legal(a.dataset.legal));
+  const cc=document.getElementById('ct_consent');if(cc)cc.innerHTML=T[l].ct_consent.replace('{p}',`<a href="${legal('privacy')}" target="_blank" rel="noopener">${T[l].pp}</a>`);
+  document.querySelectorAll('[data-app-link]').forEach(a=>a.href='app.html?lang='+l);
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=T[l][el.dataset.i];if(typeof v==='string')el.textContent=v;});
+  document.querySelectorAll('[data-ph]').forEach(el=>el.placeholder=T[l][el.dataset.ph]);
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));
+  const c=document.getElementById('f_country'),r=document.getElementById('f_role');
+  c.innerHTML=`<option value="">${T[l].f_country}</option>`+COUNTRIES[l].map((x,i)=>`<option value="${COUNTRIES.en[i]}">${x}</option>`).join('');
+  r.innerHTML=`<option value="">${T[l].f_role}</option>`+T[l].roles.map((x,i)=>`<option value="${T.en.roles[i]}">${x}</option>`).join('');
+  document.getElementById('faqlist').innerHTML=T[l].faq.map(q=>`<details><summary>${q[0]}</summary><p>${q[1]}</p></details>`).join('');
+  document.title='Ferro · '+T[l].hero_h;
+  calc();
+}
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+
+/* buy links */
+if(window.Ferro)Ferro.wireBuyButtons(document);
+
+/* ticker (illustrative) */
+const TK=[['H100 SXM','$2.19/h','−1.8%',0],['H200','$3.05/h','+0.6%',1],['A100 80GB','$1.12/h','−0.9%',0],['L40S','$0.86/h','+1.2%',1],['B200','$4.90/h','+2.1%',1],['RTX 4090','$0.34/h','−0.4%',0],['AMR robot','$2,400/mo','+0.0%',1],['Robot arm 6-axis','$1,850/mo','+0.8%',1],['Colocation','$165/kW·mo','+1.5%',1],['Data center MW','$9.8M/MW','+0.4%',1]];
+const row=TK.map(t=>`<span class="tk"><span class="n">${t[0]}</span><span class="v">${t[1]}</span><span class="d ${t[3]?'up':'dn'}">${t[2]}</span></span>`).join('');
+document.getElementById('ticker').innerHTML=row+row;
+
+/* calculator */
+const $=id=>document.getElementById(id);
+function calc(){
+  const p=+$('c_price').value,f=+$('c_fee').value,u=+$('c_util').value/100,o=+$('c_opex').value;
+  $('o_price').textContent=fmt(p,L);$('o_fee').textContent=fmt(f,L);$('o_util').textContent=Math.round(u*100)+'%';$('o_opex').textContent=fmt(o,L);
+  const net=f*u-o;
+  $('r_net').textContent=fmt(net,L);
+  $('r_36').textContent=fmt(net*36,L);
+  $('r_payback').textContent=net>0?(p/net).toFixed(1)+' '+T[L].months:T[L].never;
+  const be=(p/36+o)/f;$('r_be').textContent=be>1?'>100%':Math.ceil(be*100)+'%';
+}
+['c_price','c_fee','c_util','c_opex'].forEach(id=>$(id).addEventListener('input',calc));
+
+/* lead form → Substack */
+$('leadform').addEventListener('submit',e=>{
+  e.preventDefault();const em=$('f_email').value.trim();const msg=$('formmsg');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){msg.textContent=T[L].bad;$('f_email').focus();return;}
+  const btn=e.target.querySelector('button');btn.disabled=true;
+  (window.Ferro?Ferro.subscribe({email:em,country:$('f_country').value,role:$('f_role').value,source:'landing'}):Promise.resolve({ok:true})).then(r=>{
+    btn.disabled=false;
+    if(CONFIG.substack)window.open(CONFIG.substack.replace(/\/$/,'')+'/subscribe?email='+encodeURIComponent(em),'_blank','noopener');
+    msg.textContent=T[L].ok;e.target.reset();
+  });
+});
+
+/* mobile menu */
+const mb=document.querySelector('.menu-btn'),nv=$('mainnav');
+mb.addEventListener('click',()=>{const o=nv.classList.toggle('open');mb.setAttribute('aria-expanded',o)});
+nv.addEventListener('click',e=>{if(e.target.tagName==='A'){nv.classList.remove('open');mb.setAttribute('aria-expanded',false)}});
+
+/* initial language: ?lang= → saved → browser */
+setLang(window.Ferro?Ferro.getLang():'es');
+const MAIL=CONFIG.email||'manyosa@limly.io';
+['mailto','mailto2'].forEach(id=>{const a=$(id);if(a){a.href='mailto:'+MAIL;a.textContent=MAIL;}});
+if(CONFIG.legal&&CONFIG.legal.company)$('legal_line').textContent='· '+CONFIG.legal.company+(CONFIG.legal.state?' · '+CONFIG.legal.state:'');
+
+/* contact form → base de datos + aviso por correo */
+$('contactform').addEventListener('submit',e=>{
+  e.preventDefault();const f=e.target,fd=new FormData(f),m=$('ctmsg');
+  if(fd.get('website'))return;
+  const email=String(fd.get('email')||'').trim(),message=String(fd.get('message')||'').trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||message.length<5||!fd.get('consent')){m.className='formmsg2 err';m.textContent=T[L].ct_need;return;}
+  const btn=f.querySelector('button[type=submit]');btn.disabled=true;
+  const data={name:fd.get('name'),email,company:fd.get('company'),topic:fd.get('topic'),message};
+  (window.Ferro?Ferro.contact(data):Promise.resolve({ok:false})).then(r=>{
+    btn.disabled=false;
+    if(r.ok){m.className='formmsg2 ok';m.textContent=T[L].ct_ok.replace('{e}',email);f.reset();}
+    else{m.className='formmsg2 err';m.innerHTML=T[L].ct_err.replace('{m}',`<a href="mailto:${MAIL}?subject=${encodeURIComponent('Ferro · '+(data.topic||''))}&body=${encodeURIComponent(message)}">${MAIL}</a>`);}
+  });
+});
+
+/* auth state in header */
+const goApp=e=>{if(window.Ferro&&Ferro.configured&&!Ferro.user()){e.preventDefault();Ferro.openAuth('signup');}};
+document.querySelectorAll('[data-app-link]').forEach(a=>a.addEventListener('click',goApp));
+$('hdr_login').addEventListener('click',()=>{if(window.Ferro)Ferro.openAuth('login');});
+function paintAuth(u){const on=!!(window.Ferro&&Ferro.configured);$('hdr_login').hidden=!on||!!u;$('hdr_app').hidden=on&&!u;$('hdr_app').href='app.html?lang='+L;$('nav_login').hidden=!on||!!u;$('nav_app').hidden=on&&!u;}
+$('nav_login').addEventListener('click',e=>{e.preventDefault();if(window.Ferro)Ferro.openAuth('login');});
+paintAuth(null);
+if(window.Ferro){Ferro.onAuth(u=>paintAuth(u));Ferro.getUser().then(paintAuth);window.addEventListener('ferro:lang',()=>paintAuth(Ferro.user()));}
+</script>
+</body>
+</html>

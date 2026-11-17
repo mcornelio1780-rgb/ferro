@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ferro App · MVP</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230F2A4A'/%3E%3Cg fill='%23EDF1F5'%3E%3Cpolygon points='12,13 44,13 49,24 12,24'/%3E%3Cpolygon points='12,28 34,28 39,39 12,39'/%3E%3Cpolygon points='12,43 21,43 26,54 12,54'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+:root{--prussian:#0F2A4A;--cyan:#1F4FA3;--oxide:#B4492C;--steel:#8C96A3;--signal:#1E8F5A;
+--bg:#EDF1F5;--fg:#0A1626;--muted:#3B4A5E;--card:#FFFFFF;--line:rgba(15,42,74,.14);--field:#F7F9FB;
+--f:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color-scheme:light;box-sizing:border-box;
+padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1A2E;--fg:#E6ECF3;--muted:#A9B6C6;--card:#11243D;--line:rgba(237,241,245,.12);--field:#0E2036;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0B1A2E;--fg:#E6ECF3;--muted:#A9B6C6;--card:#11243D;--line:rgba(237,241,245,.12);--field:#0E2036;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--f);-webkit-font-smoothing:antialiased}
+:focus-visible{outline:3px solid var(--oxide);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100%}
+aside{background:var(--prussian);color:#EDF1F5;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.brand b{font-stretch:125%;font-weight:900;font-size:22px;letter-spacing:-.04em}
+.brand span{font-size:12px;color:var(--steel);margin-left:auto}
+.navbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;color:#C9D3E0;font:500 15px var(--f);padding:10px;border-radius:4px;cursor:pointer}
+.navbtn svg{width:18px;height:18px;flex:none}
+.navbtn:hover{background:rgba(255,255,255,.06);color:#fff}
+.navbtn[aria-current="page"]{background:rgba(255,255,255,.11);color:#fff}
+.side-foot{margin-top:auto;display:grid;gap:10px;font-size:12px;color:var(--steel)}
+.side-foot select{width:100%;font:13px var(--f);padding:7px;border-radius:3px;background:#173659;color:#fff;border:1px solid rgba(255,255,255,.15)}
+main{padding:28px clamp(16px,3vw,40px) 60px;min-width:0}
+.view{display:none}.view.on{display:block}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+h1{font-stretch:125%;font-weight:800;font-size:clamp(26px,3.2vw,38px);letter-spacing:-.03em;line-height:1.05;margin:0}
+.head p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+h2{font-stretch:115%;font-weight:700;font-size:18px;margin:0 0 12px;letter-spacing:-.01em}
+.btn{display:inline-flex;align-items:center;gap:7px;font:600 14px var(--f);padding:9px 14px;border-radius:3px;border:1.5px solid var(--cyan);background:var(--cyan);color:#fff;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--cyan)}
+.btn.warn{background:var(--oxide);border-color:var(--oxide)}
+.btn:hover{filter:brightness(1.1)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.cols{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:20px}
+.form{display:grid;gap:12px}
+.form .grp{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
+.form .grp:first-child{border-top:0;margin-top:0;padding-top:0}
+.fld{display:grid;grid-template-columns:1fr 120px;align-items:center;gap:10px}
+.fld label{font-size:14px}
+.fld input,.fld select,.inp{font:14px var(--f);padding:8px 10px;border:1px solid var(--line);border-radius:3px;background:var(--field);color:var(--fg);width:100%;font-variant-numeric:tabular-nums;text-align:right}
+.inp{text-align:left}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);padding:16px;border-radius:3px}
+.kpi .l{font-size:12.5px;color:var(--muted)}
+.kpi .v{font-stretch:110%;font-weight:800;font-size:clamp(19px,1.9vw,26px);letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:4px}
+.kpi .s{font-size:12px;margin-top:2px}
+.good{color:var(--signal)}.bad{color:var(--oxide)}.mid{color:#B7861F}
+.chart{width:100%;height:240px;display:block}
+.tablewrap{overflow-x:auto;max-height:520px;overflow-y:auto;border:1px solid var(--line);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{position:sticky;top:0;background:var(--card);font-weight:700;z-index:1}
+td:first-child,th:first-child{text-align:left}
+.sens td{text-align:center;font-weight:600;padding:7px 6px}.sens th{white-space:normal;font-size:12.5px}
+.sens th{text-align:center}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px}
+.tranches{display:grid;gap:8px;margin-top:6px}
+.tr{display:grid;grid-template-columns:110px 1fr 90px;align-items:center;gap:10px;font-size:13.5px}
+.tr .bar{height:18px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 100%,0 100%)}
+textarea{width:100%;min-height:420px;font:14px/1.6 var(--f);padding:16px;border:1px solid var(--line);border-radius:3px;background:var(--field);color:var(--fg);resize:vertical}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:12px;background:rgba(31,79,163,.12);color:var(--cyan);font-weight:600}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--prussian);color:#fff;padding:10px 16px;border-radius:3px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}
+.toast.on{opacity:1}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.bars div{display:grid;grid-template-columns:150px 1fr 60px;gap:10px;align-items:center;font-size:13.5px;margin:6px 0}
+.bars span.b{height:12px;background:var(--cyan)}
+select.st{font:13px var(--f);padding:3px 6px;border:1px solid var(--line);border-radius:3px;background:var(--field);color:var(--fg)}
+.gate{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;background:#0F2A4A;color:#EDF1F5;background-image:linear-gradient(rgba(237,241,245,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(237,241,245,.06) 1px,transparent 1px);background-size:48px 48px}
+.gate[hidden],[hidden]{display:none!important}
+.gate .box{max-width:520px;display:grid;gap:18px}
+.gate h1{color:#fff;font-size:clamp(30px,5vw,48px)}
+.gate p{color:#C9D3E0;margin:0;font-size:17px}
+.gate .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.gate .btn.light{background:#EDF1F5;color:#0F2A4A;border-color:#EDF1F5}
+.gate .btn.out{background:transparent;color:#EDF1F5;border-color:rgba(237,241,245,.5)}
+.gate a{color:#C9D3E0}
+.gate select{font:14px var(--f);padding:7px;border-radius:3px;background:#173659;color:#fff;border:1px solid rgba(255,255,255,.2)}
+.upsell{border:1px solid rgba(255,255,255,.14);border-radius:4px;padding:12px;display:grid;gap:8px;color:#C9D3E0;font-size:12.5px}
+.upsell b{color:#fff;font-size:14px}
+.upsell .btn{justify-content:center;background:#B4492C;border-color:#B4492C;padding:8px 10px;font-size:13px}
+.who{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#C9D3E0;word-break:break-all}
+.who button{background:none;border:1px solid rgba(255,255,255,.2);color:#C9D3E0;border-radius:3px;padding:4px 8px;font:12px var(--f);cursor:pointer;white-space:nowrap}
+.side-foot a{color:#C9D3E0;font-size:12.5px}
+.demo-bar{background:#F9EEDA;color:#6B4A0F;font-size:13px;padding:8px 14px;border-radius:3px;margin-bottom:16px}
+.acc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.buyrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn.buy{background:#B4492C;border-color:#B4492C}
+@media (max-width:1100px){.cols{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:780px){.app{grid-template-columns:1fr}aside{position:sticky;top:0;height:auto;flex-direction:row;overflow-x:auto;padding:10px;z-index:20;gap:2px}
+.brand{padding:4px 10px 4px 4px}.brand span,.side-foot{display:none}.navbtn{white-space:nowrap;width:auto}.grid2{grid-template-columns:1fr}.fld{grid-template-columns:1fr 110px}}
+@media print{aside,.tools,.no-print{display:none!important}.app{display:block}.view{display:none!important}.view.on{display:block!important}textarea{border:0;min-height:auto}}
+</style>
+
+<script src="assets/config.js"></script>
+<script src="assets/ferro.js"></script>
+</head>
+<body>
+<div class="gate" id="gate" hidden>
+  <div class="box">
+    <svg width="56" height="56" viewBox="0 0 64 64" aria-hidden="true"><g fill="#EDF1F5"><polygon points="8,8 50,8 56,20 8,20"/><polygon points="8,26 36,26 42,38 8,38"/><polygon points="8,44 18,44 24,56 8,56" fill="#B4492C"/></g></svg>
+    <h1 data-i="gate_h"></h1>
+    <p data-i="gate_p"></p>
+    <div class="row"><button class="btn light" type="button" id="gate_signup" data-i="gate_signup"></button><button class="btn out" type="button" id="gate_login" data-i="gate_login"></button></div>
+    <div class="row"><a href="index.html" id="gate_back" data-i="back_web"></a><select id="gate_lang" aria-label="Idioma"><option value="es">Español</option><option value="en">English</option><option value="pt">Português</option><option value="fr">Français</option></select></div>
+  </div>
+</div>
+<div class="app" id="appwrap">
+<aside>
+  <div class="brand"><svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><g fill="#EDF1F5"><polygon points="8,8 50,8 56,20 8,20"/><polygon points="8,26 36,26 42,38 8,38"/><polygon points="8,44 18,44 24,56 8,56"/></g></svg><b>ferro</b><span>MVP</span></div>
+  <button class="navbtn" data-v="raas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="6" y="8" width="12" height="10"/><path d="M12 8V4M9 12h.01M15 12h.01M9 18v2M15 18v2"/></svg><span data-i="n_raas"></span></button>
+  <button class="navbtn" data-v="gpu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="5" y="5" width="14" height="14"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg><span data-i="n_gpu"></span></button>
+  <button class="navbtn" data-v="dc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="3" width="16" height="6"/><rect x="4" y="11" width="16" height="6"/><path d="M8 6h.01M8 14h.01M12 21l2-4h-4l2-4"/></svg><span data-i="n_dc"></span></button>
+  <button class="navbtn" data-v="memo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span data-i="n_memo"></span></button>
+  <button class="navbtn" data-v="index"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 17l5-6 4 3 5-7 4 4M3 21h18"/></svg><span data-i="n_index"></span></button>
+  <button class="navbtn" data-v="leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg><span data-i="n_leads"></span></button>
+  <button class="navbtn" data-v="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><span data-i="n_account"></span></button>
+  <button class="navbtn" data-v="admin" id="nav_admin" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span data-i="n_admin"></span></button>
+  <div class="side-foot">
+    <div class="upsell"><b data-i="up_t"></b><span data-i="up_p"></span><a class="btn" data-buy="kit" data-medium="app_sidebar" href="#" data-i="up_b"></a></div>
+    <div class="who" id="who" hidden><span id="who_email"></span><button type="button" id="logout" data-i="logout"></button></div>
+    <a href="index.html" id="back_web" data-i="back_web"></a>
+    <select id="lang" aria-label="Idioma"><option value="es">Español</option><option value="en">English</option><option value="pt">Português</option><option value="fr">Français</option></select>
+    <span data-i="disc"></span>
+  </div>
+</aside>
+
+<main>
+<!-- MODEL VIEWS share a template rendered by JS -->
+<section class="view" id="v-raas"></section>
+<section class="view" id="v-gpu"></section>
+<section class="view" id="v-dc"></section>
+
+<section class="view" id="v-memo">
+  <div class="head"><div><h1 data-i="memo_t"></h1><p data-i="memo_p"></p></div>
+    <div class="tools"><select class="inp" id="memo_src" style="width:auto"></select><button class="btn ghost" id="memo_gen" data-i="regen"></button><button class="btn ghost" id="memo_copy" data-i="copy"></button><button class="btn" onclick="window.print()" data-i="pdf"></button><a class="btn buy" data-buy="review" data-medium="app_memo" href="#" data-i="memo_review"></a></div></div>
+  <div class="grid2">
+    <div class="card"><h2 data-i="memo_struct"></h2><div class="tranches" id="memo_tr"></div><div class="form" style="margin-top:16px">
+      <div class="fld"><label data-i="t_sen"></label><input type="number" id="t_sen" value="70" min="0" max="100"></div>
+      <div class="fld"><label data-i="t_mez"></label><input type="number" id="t_mez" value="20" min="0" max="100"></div>
+      <div class="fld"><label data-i="t_company"></label><input class="inp" id="t_company" value="Acme Robotics"></div>
+    </div><p class="note" data-i="t_note"></p></div>
+    <div class="card"><textarea id="memo_txt" aria-label="Memo"></textarea></div>
+  </div>
+</section>
+
+<section class="view" id="v-index">
+  <div class="head"><div><h1 data-i="idx_t"></h1><p data-i="idx_p"></p></div>
+    <div class="tools"><label class="btn ghost" style="cursor:pointer"><span data-i="import"></span><input type="file" id="idx_file" accept=".csv" hidden></label><button class="btn ghost" id="idx_sample" data-i="sample"></button><button class="btn" id="idx_export" data-i="export"></button></div></div>
+  <div class="kpis" id="idx_kpis"></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 data-i="idx_chart"></h2><select class="inp" id="idx_gpu" style="width:auto"></select></div><svg class="chart" id="idx_svg" role="img" aria-label="Chart"></svg><p class="note" id="idx_note"></p></div>
+  <div class="card" style="margin-top:16px"><h2 data-i="idx_table"></h2><div class="tablewrap"><table id="idx_tbl"></table></div></div>
+</section>
+
+<section class="view" id="v-leads">
+  <div class="head"><div><h1 data-i="leads_t"></h1><p data-i="leads_p"></p></div>
+    <div class="tools"><label class="btn ghost" style="cursor:pointer"><span data-i="import"></span><input type="file" id="ld_file" accept=".csv" multiple hidden></label><button class="btn ghost" id="ld_clear" data-i="clear"></button><button class="btn" id="ld_export" data-i="export"></button></div></div>
+  <div class="kpis" id="ld_kpis"></div>
+  <div class="grid2" style="margin-bottom:16px"><div class="card"><h2 data-i="by_country"></h2><div class="bars" id="ld_bars"></div></div>
+  <div class="card"><h2 data-i="filters"></h2><div class="form">
+    <div class="fld"><label data-i="search"></label><input class="inp" id="ld_q"></div>
+    <div class="fld"><label data-i="country"></label><select id="ld_country"></select></div>
+    <div class="fld"><label data-i="status"></label><select id="ld_status"></select></div>
+    <div class="fld"><label data-i="segment"></label><select id="ld_seg"></select></div></div></div></div>
+  <div class="card"><div class="tablewrap"><table id="ld_tbl"></table></div><p class="note" id="ld_page"></p></div>
+</section>
+<section class="view" id="v-account">
+  <div class="head"><div><h1 data-i="acc_t"></h1><p data-i="acc_p"></p></div></div>
+  <div class="acc-grid">
+    <div class="card"><h2 data-i="acc_profile"></h2>
+      <form class="form" id="profile_form" onsubmit="return false">
+        <div class="fld"><label for="pf_email" data-i="pf_email"></label><input class="inp" id="pf_email" disabled></div>
+        <div class="fld"><label for="pf_name" data-i="pf_name"></label><input class="inp" id="pf_name" autocomplete="name"></div>
+        <div class="fld"><label for="pf_company" data-i="pf_company"></label><input class="inp" id="pf_company" autocomplete="organization"></div>
+        <div class="fld"><label for="pf_role" data-i="pf_role"></label><input class="inp" id="pf_role"></div>
+        <div class="fld"><label for="pf_country" data-i="pf_country"></label><input class="inp" id="pf_country" autocomplete="country-name"></div>
+        <label style="display:flex;gap:8px;font-size:14px;align-items:center"><input type="checkbox" id="pf_optin"><span data-i="pf_optin"></span></label>
+        <div class="buyrow"><button class="btn" id="pf_save" type="button" data-i="pf_save"></button><button class="btn ghost" id="pf_logout" type="button" data-i="logout"></button></div>
+      </form>
+      <p class="note" id="pf_note"></p>
+    </div>
+    <div class="card"><h2 data-i="acc_buy"></h2><p class="note" style="margin-top:0" data-i="acc_buy_p"></p>
+      <div class="buyrow"><a class="btn buy" data-buy="kit" data-medium="app_account" href="#" data-i="b_kit"></a><a class="btn" data-buy="review" data-medium="app_account" href="#" data-i="b_review"></a><a class="btn ghost" data-buy="pro" data-medium="app_account" href="#" data-i="b_pro"></a></div>
+      <h2 style="margin-top:22px" data-i="acc_orders"></h2><p class="note" style="margin-top:0" data-i="acc_orders_p"></p>
+      <div class="buyrow"><a class="btn ghost" id="portal_link" href="#" target="_blank" rel="noopener" data-i="acc_portal"></a></div>
+      <h2 style="margin-top:22px" data-i="acc_data"></h2><p class="note" style="margin-top:0" data-i="acc_data_p"></p>
+      <div class="buyrow"><a class="btn ghost" id="legal_priv" href="legal.html#privacy" data-i="acc_privacy"></a><a class="btn ghost" id="legal_ai" href="legal.html#ai" data-i="acc_ai"></a><a class="btn ghost" id="del_req" href="#" data-i="acc_delete"></a></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-admin">
+  <div class="head"><div><h1 data-i="adm_t"></h1><p data-i="adm_p"></p></div><div class="tools"><button class="btn ghost" id="adm_reload" data-i="adm_reload"></button></div></div>
+  <div class="kpis" id="adm_kpis"></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 data-i="adm_contacts"></h2><button class="btn ghost" id="adm_exp_c" data-i="export"></button></div><div class="tablewrap"><table id="adm_tc"></table></div></div>
+  <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 data-i="adm_subs"></h2><button class="btn ghost" id="adm_exp_s" data-i="export"></button></div><div class="tablewrap"><table id="adm_ts"></table></div></div>
+  <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 data-i="adm_users"></h2><button class="btn ghost" id="adm_exp_u" data-i="export"></button></div><div class="tablewrap"><table id="adm_tu"></table></div></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ================= i18n ================= */
+const I={
+es:{n_account:"Mi cuenta",n_admin:"Admin",gate_h:"Entra a Ferro",gate_p:"Crea tu cuenta gratis para usar los modelos RaaS, de leasing de GPU y de data center, generar deal memos y guardar tus escenarios.",gate_signup:"Crear cuenta gratis",gate_login:"Ya tengo cuenta",back_web:"← Volver a la web",up_t:"Ferro Kit en Excel",up_p:"Los 3 modelos completos para tu prestamista, con video.",up_b:"Comprar · $59",logout:"Salir",memo_review:"Pedir revisión · $249",_unused_demo_bar:"Modo demo: falta configurar Supabase en assets/config.js. Todo funciona, pero sin cuentas y los datos quedan solo en este navegador.",acc_t:"Mi cuenta",acc_p:"Tus datos, tus compras y tus derechos sobre la información.",acc_profile:"Perfil",pf_email:"Correo",pf_name:"Nombre",pf_company:"Empresa",pf_role:"Cargo",pf_country:"País",pf_optin:"Recibir el índice Ferro cada lunes",pf_save:"Guardar",pf_saved:"Perfil guardado.",pf_err:"No se pudo guardar. Inténtalo de nuevo.",acc_buy:"Productos",acc_buy_p:"Pagos seguros con Polar. Tu correo se completa solo en el checkout.",b_kit:"Ferro Kit · $59",b_review:"Ferro Review · $249",b_pro:"Index Pro · $99/mes",acc_orders:"Mis compras y descargas",acc_orders_p:"Polar te envía el acceso por correo. También puedes ver facturas, descargas y suscripciones en tu portal de cliente.",acc_portal:"Abrir portal de cliente",acc_data:"Privacidad",acc_data_p:"Puedes pedir una copia o la eliminación de tus datos en cualquier momento.",acc_privacy:"Política de privacidad",acc_ai:"Uso de IA",acc_delete:"Solicitar eliminación de datos",del_subject:"Solicitud de eliminación de datos",adm_t:"Admin",adm_p:"Mensajes de contacto, suscriptores del índice y usuarios registrados. Solo visible para correos administradores.",adm_reload:"Actualizar",adm_contacts:"Mensajes de contacto",adm_subs:"Suscriptores del índice",adm_users:"Usuarios registrados",adm_denied:"Sin permiso de administrador en la base de datos. Agrega tu correo en la tabla admins (ver GUIA).",saved_cloud:"Escenario guardado en tu cuenta",loaded_cloud:"Escenarios de tu cuenta cargados",n_raas:'Modelo RaaS',n_gpu:'Leasing de GPU',n_dc:'Data center modular',n_memo:'Deal memo',n_index:'Índice GPU',n_leads:'Leads',
+disc:'Herramienta educativa. No es asesoría de inversión.',
+raas_t:'Robot como servicio (RaaS)',raas_p:'Flota de robots alquilada por mes. Cambia los supuestos y mira si el deal se sostiene con deuda.',
+gpu_t:'Leasing de GPU',gpu_p:'Clúster de GPUs alquilado por hora. Incluye energía, PUE y riesgo de precio.',
+dc_t:'Data center modular',dc_p:'Capacidad en MW alquilada por kW al mes a inquilinos.',
+g_asset:'Activo',g_rev:'Ingresos',g_cost:'Costos',g_fin:'Financiamiento',g_exit:'Salida',
+units:'Unidades',price_unit:'Costo por unidad ($)',fee:'Tarifa mensual por unidad ($)',util:'Utilización (%)',opex_unit:'Costo operativo mensual por unidad ($)',maint:'Mantenimiento anual (% del costo)',
+gpus:'Cantidad de GPUs',gpu_cost:'Costo por GPU con servidor ($)',rate:'Precio por GPU-hora ($)',kw:'Consumo por GPU (kW)',kwh:'Precio de energía ($/kWh)',pue:'PUE',other:'Otros costos por GPU al mes ($)',
+mw:'Capacidad (MW)',capex_mw:'Costo por MW ($)',rent:'Renta ($/kW al mes)',occ:'Ocupación (%)',opex_pct:'Costos operativos (% de ingresos)',
+down:'Pago inicial (%)',apr:'Tasa anual (%)',term:'Plazo del préstamo (meses)',horizon:'Horizonte (meses)',resid:'Valor residual al final (%)',disc_rate:'Tasa de descuento (%)',
+k_dscr:'DSCR promedio',k_dscr_s:'Prestamistas suelen pedir ≥ 1,25×',k_irr:'TIR del equity (anual)',k_payback:'Payback sin deuda',k_npv:'VPN del equity',k_capex:'Inversión total',k_loan:'Préstamo',k_rev:'Ingreso mensual',k_be:'Punto de equilibrio',
+months:'meses',never:'No se paga',chart_t:'Flujo acumulado del equity',sens_t:'Sensibilidad del DSCR',sens_rows:'Utilización',sens_cols:'Precio vs. base',
+tbl_t:'Flujo de caja mensual',m:'Mes',rev:'Ingresos',opex:'Costos',debt:'Servicio de deuda',cf:'Flujo equity',cum:'Acumulado',dscr:'DSCR',
+l_ok:'Cubre ≥ 1,25×',l_mid:'1,0–1,25×',l_bad:'< 1,0× no paga la deuda',
+save:'Guardar escenario',load:'Cargar',reset:'Valores base',csv:'Exportar CSV',saved:'Escenario guardado',
+memo_t:'Deal memo',memo_p:'Borrador de memo de deuda generado a partir del modelo. Edítalo, cópialo o imprímelo como PDF.',memo_struct:'Estructura en tramos',
+t_sen:'Tramo senior (%)',t_mez:'Tramo mezzanine (%)',t_company:'Empresa',t_note:'El tramo junior es el resto. Es una estructura ilustrativa para discutir con un financista, no una oferta.',
+regen:'Regenerar',copy:'Copiar',pdf:'Imprimir / PDF',copied:'Copiado',
+idx_t:'Índice Ferro de GPU',idx_p:'Mediana semanal de precios públicos de alquiler por GPU-hora. Importa el CSV del scraper de precios o carga la muestra.',
+import:'Importar CSV',sample:'Cargar muestra',export:'Exportar CSV',clear:'Vaciar',idx_chart:'Mediana semanal',idx_table:'Últimos registros',
+sample_note:'Datos de MUESTRA generados para demostrar el formato. No publicar como precios reales.',real_note:'Datos importados. Verifica fuente y fecha antes de publicar.',
+gpu:'GPU',provider:'Proveedor',date:'Fecha',price:'Precio $/h',source:'Fuente',last:'Última mediana',chg:'Cambio 4 semanas',obs:'Observaciones',provs:'Proveedores',
+leads_t:'Leads',leads_p:'Importa los CSV del scraper. Filtra por país, segmento y estado, actualiza el pipeline y exporta para tu campaña.',
+by_country:'Leads por país',filters:'Filtros',search:'Buscar',country:'País',status:'Estado',segment:'Segmento',all:'Todos',
+total:'Total',with_email:'Con correo',countries:'Países',contacted:'Contactados',
+st:['Nuevo','Contactado','En conversación','Reunión','Propuesta','Cerrado','Perdido'],
+showing:'Mostrando',of:'de',empty_leads:'Todavía no hay leads. Importa el CSV que genera ferro_scraper.py.',
+cols:['Empresa','Correo','País','Ciudad','Segmento','Web','Estado']},
+en:{n_account:"My account",n_admin:"Admin",gate_h:"Sign in to Ferro",gate_p:"Create your free account to use the RaaS, GPU leasing and data center models, generate deal memos and save your scenarios.",gate_signup:"Create free account",gate_login:"I already have an account",back_web:"← Back to website",up_t:"Ferro Kit in Excel",up_p:"All 3 full models for your lender, with video.",up_b:"Buy · $59",logout:"Log out",memo_review:"Request review · $249",_unused_demo_bar:"Demo mode: Supabase isn’t configured in assets/config.js. Everything works, but without accounts and data stays in this browser only.",acc_t:"My account",acc_p:"Your data, your purchases and your rights over your information.",acc_profile:"Profile",pf_email:"Email",pf_name:"Name",pf_company:"Company",pf_role:"Role",pf_country:"Country",pf_optin:"Get the Ferro index every Monday",pf_save:"Save",pf_saved:"Profile saved.",pf_err:"Couldn’t save. Please try again.",acc_buy:"Products",acc_buy_p:"Secure payments with Polar. Your email is prefilled at checkout.",b_kit:"Ferro Kit · $59",b_review:"Ferro Review · $249",b_pro:"Index Pro · $99/mo",acc_orders:"My purchases and downloads",acc_orders_p:"Polar emails you access. You can also see invoices, downloads and subscriptions in your customer portal.",acc_portal:"Open customer portal",acc_data:"Privacy",acc_data_p:"You can request a copy or deletion of your data at any time.",acc_privacy:"Privacy policy",acc_ai:"AI use",acc_delete:"Request data deletion",del_subject:"Data deletion request",adm_t:"Admin",adm_p:"Contact messages, index subscribers and registered users. Visible to admin emails only.",adm_reload:"Refresh",adm_contacts:"Contact messages",adm_subs:"Index subscribers",adm_users:"Registered users",adm_denied:"No admin permission in the database. Add your email to the admins table (see GUIDE).",saved_cloud:"Scenario saved to your account",loaded_cloud:"Your saved scenarios were loaded",n_raas:'RaaS model',n_gpu:'GPU leasing',n_dc:'Modular data center',n_memo:'Deal memo',n_index:'GPU index',n_leads:'Leads',
+disc:'Educational tool. Not investment advice.',
+raas_t:'Robot-as-a-Service (RaaS)',raas_p:'A robot fleet rented monthly. Change the assumptions and see if the deal holds up with debt.',
+gpu_t:'GPU leasing',gpu_p:'A GPU cluster rented by the hour. Includes power, PUE and price risk.',
+dc_t:'Modular data center',dc_p:'MW capacity leased to tenants per kW per month.',
+g_asset:'Asset',g_rev:'Revenue',g_cost:'Costs',g_fin:'Financing',g_exit:'Exit',
+units:'Units',price_unit:'Cost per unit ($)',fee:'Monthly fee per unit ($)',util:'Utilization (%)',opex_unit:'Monthly operating cost per unit ($)',maint:'Annual maintenance (% of cost)',
+gpus:'Number of GPUs',gpu_cost:'Cost per GPU incl. server ($)',rate:'Price per GPU-hour ($)',kw:'Power per GPU (kW)',kwh:'Power price ($/kWh)',pue:'PUE',other:'Other cost per GPU per month ($)',
+mw:'Capacity (MW)',capex_mw:'Cost per MW ($)',rent:'Rent ($/kW per month)',occ:'Occupancy (%)',opex_pct:'Operating costs (% of revenue)',
+down:'Down payment (%)',apr:'Annual rate (%)',term:'Loan term (months)',horizon:'Horizon (months)',resid:'Residual value at end (%)',disc_rate:'Discount rate (%)',
+k_dscr:'Average DSCR',k_dscr_s:'Lenders usually require ≥ 1.25×',k_irr:'Equity IRR (annual)',k_payback:'Unlevered payback',k_npv:'Equity NPV',k_capex:'Total investment',k_loan:'Loan',k_rev:'Monthly revenue',k_be:'Break-even',
+months:'months',never:'Never pays back',chart_t:'Cumulative equity cash flow',sens_t:'DSCR sensitivity',sens_rows:'Utilization',sens_cols:'Price vs. base',
+tbl_t:'Monthly cash flow',m:'Month',rev:'Revenue',opex:'Costs',debt:'Debt service',cf:'Equity CF',cum:'Cumulative',dscr:'DSCR',
+l_ok:'Covers ≥ 1.25×',l_mid:'1.0–1.25×',l_bad:'< 1.0× can’t pay the debt',
+save:'Save scenario',load:'Load',reset:'Base values',csv:'Export CSV',saved:'Scenario saved',
+memo_t:'Deal memo',memo_p:'Draft debt memo generated from the model. Edit, copy or print it as PDF.',memo_struct:'Tranche structure',
+t_sen:'Senior tranche (%)',t_mez:'Mezzanine tranche (%)',t_company:'Company',t_note:'Junior is the remainder. Illustrative structure to discuss with a lender, not an offer.',
+regen:'Regenerate',copy:'Copy',pdf:'Print / PDF',copied:'Copied',
+idx_t:'Ferro GPU Index',idx_p:'Weekly median of public GPU-hour rental prices. Import the price scraper CSV or load the sample.',
+import:'Import CSV',sample:'Load sample',export:'Export CSV',clear:'Clear',idx_chart:'Weekly median',idx_table:'Latest records',
+sample_note:'SAMPLE data generated to show the format. Do not publish as real prices.',real_note:'Imported data. Check source and date before publishing.',
+gpu:'GPU',provider:'Provider',date:'Date',price:'Price $/h',source:'Source',last:'Latest median',chg:'4-week change',obs:'Observations',provs:'Providers',
+leads_t:'Leads',leads_p:'Import the scraper CSVs. Filter by country, segment and status, update the pipeline and export for your campaign.',
+by_country:'Leads by country',filters:'Filters',search:'Search',country:'Country',status:'Status',segment:'Segment',all:'All',
+total:'Total',with_email:'With email',countries:'Countries',contacted:'Contacted',
+st:['New','Contacted','In conversation','Meeting','Proposal','Won','Lost'],
+showing:'Showing',of:'of',empty_leads:'No leads yet. Import the CSV produced by ferro_scraper.py.',
+cols:['Company','Email','Country','City','Segment','Website','Status']},
+pt:{n_account:"Minha conta",n_admin:"Admin",gate_h:"Entre na Ferro",gate_p:"Crie sua conta grátis para usar os modelos de RaaS, leasing de GPU e data center, gerar memorandos e salvar seus cenários.",gate_signup:"Criar conta grátis",gate_login:"Já tenho conta",back_web:"← Voltar ao site",up_t:"Ferro Kit em Excel",up_p:"Os 3 modelos completos para seu credor, com vídeo.",up_b:"Comprar · US$59",logout:"Sair",memo_review:"Pedir revisão · US$249",_unused_demo_bar:"Modo demo: falta configurar o Supabase em assets/config.js. Tudo funciona, mas sem contas e os dados ficam só neste navegador.",acc_t:"Minha conta",acc_p:"Seus dados, suas compras e seus direitos sobre as informações.",acc_profile:"Perfil",pf_email:"E-mail",pf_name:"Nome",pf_company:"Empresa",pf_role:"Cargo",pf_country:"País",pf_optin:"Receber o índice Ferro toda segunda",pf_save:"Salvar",pf_saved:"Perfil salvo.",pf_err:"Não foi possível salvar. Tente novamente.",acc_buy:"Produtos",acc_buy_p:"Pagamento seguro com a Polar. Seu e-mail já vem preenchido no checkout.",b_kit:"Ferro Kit · US$59",b_review:"Ferro Review · US$249",b_pro:"Index Pro · US$99/mês",acc_orders:"Minhas compras e downloads",acc_orders_p:"A Polar envia o acesso por e-mail. Você também vê faturas, downloads e assinaturas no portal do cliente.",acc_portal:"Abrir portal do cliente",acc_data:"Privacidade",acc_data_p:"Você pode pedir uma cópia ou a exclusão dos seus dados a qualquer momento.",acc_privacy:"Política de privacidade",acc_ai:"Uso de IA",acc_delete:"Pedir exclusão de dados",del_subject:"Pedido de exclusão de dados",adm_t:"Admin",adm_p:"Mensagens de contato, assinantes do índice e usuários registrados. Visível só para e-mails administradores.",adm_reload:"Atualizar",adm_contacts:"Mensagens de contato",adm_subs:"Assinantes do índice",adm_users:"Usuários registrados",adm_denied:"Sem permissão de administrador no banco. Adicione seu e-mail na tabela admins (veja o GUIA).",saved_cloud:"Cenário salvo na sua conta",loaded_cloud:"Cenários da sua conta carregados",n_raas:'Modelo RaaS',n_gpu:'Leasing de GPU',n_dc:'Data center modular',n_memo:'Memorando',n_index:'Índice GPU',n_leads:'Leads',
+disc:'Ferramenta educativa. Não é recomendação de investimento.',
+raas_t:'Robô como serviço (RaaS)',raas_p:'Frota de robôs alugada por mês. Altere as premissas e veja se a operação se sustenta com dívida.',
+gpu_t:'Leasing de GPU',gpu_p:'Cluster de GPUs alugado por hora. Inclui energia, PUE e risco de preço.',
+dc_t:'Data center modular',dc_p:'Capacidade em MW alugada por kW ao mês.',
+g_asset:'Ativo',g_rev:'Receita',g_cost:'Custos',g_fin:'Financiamento',g_exit:'Saída',
+units:'Unidades',price_unit:'Custo por unidade ($)',fee:'Mensalidade por unidade ($)',util:'Utilização (%)',opex_unit:'Custo operacional mensal por unidade ($)',maint:'Manutenção anual (% do custo)',
+gpus:'Quantidade de GPUs',gpu_cost:'Custo por GPU com servidor ($)',rate:'Preço por GPU-hora ($)',kw:'Consumo por GPU (kW)',kwh:'Preço da energia ($/kWh)',pue:'PUE',other:'Outros custos por GPU ao mês ($)',
+mw:'Capacidade (MW)',capex_mw:'Custo por MW ($)',rent:'Aluguel ($/kW ao mês)',occ:'Ocupação (%)',opex_pct:'Custos operacionais (% da receita)',
+down:'Entrada (%)',apr:'Taxa anual (%)',term:'Prazo do empréstimo (meses)',horizon:'Horizonte (meses)',resid:'Valor residual no fim (%)',disc_rate:'Taxa de desconto (%)',
+k_dscr:'DSCR médio',k_dscr_s:'Credores costumam exigir ≥ 1,25×',k_irr:'TIR do equity (anual)',k_payback:'Payback sem dívida',k_npv:'VPL do equity',k_capex:'Investimento total',k_loan:'Empréstimo',k_rev:'Receita mensal',k_be:'Ponto de equilíbrio',
+months:'meses',never:'Não se paga',chart_t:'Fluxo acumulado do equity',sens_t:'Sensibilidade do DSCR',sens_rows:'Utilização',sens_cols:'Preço vs. base',
+tbl_t:'Fluxo de caixa mensal',m:'Mês',rev:'Receita',opex:'Custos',debt:'Serviço da dívida',cf:'Fluxo equity',cum:'Acumulado',dscr:'DSCR',
+l_ok:'Cobre ≥ 1,25×',l_mid:'1,0–1,25×',l_bad:'< 1,0× não paga a dívida',
+save:'Salvar cenário',load:'Carregar',reset:'Valores base',csv:'Exportar CSV',saved:'Cenário salvo',
+memo_t:'Memorando da operação',memo_p:'Rascunho de memorando de dívida gerado a partir do modelo. Edite, copie ou imprima em PDF.',memo_struct:'Estrutura em tranches',
+t_sen:'Tranche sênior (%)',t_mez:'Tranche mezanino (%)',t_company:'Empresa',t_note:'A tranche júnior é o restante. Estrutura ilustrativa para discutir com um credor, não uma oferta.',
+regen:'Gerar de novo',copy:'Copiar',pdf:'Imprimir / PDF',copied:'Copiado',
+idx_t:'Índice Ferro de GPU',idx_p:'Mediana semanal dos preços públicos de aluguel por GPU-hora. Importe o CSV do scraper de preços ou carregue a amostra.',
+import:'Importar CSV',sample:'Carregar amostra',export:'Exportar CSV',clear:'Limpar',idx_chart:'Mediana semanal',idx_table:'Últimos registros',
+sample_note:'Dados de AMOSTRA gerados para mostrar o formato. Não publicar como preços reais.',real_note:'Dados importados. Verifique fonte e data antes de publicar.',
+gpu:'GPU',provider:'Provedor',date:'Data',price:'Preço $/h',source:'Fonte',last:'Última mediana',chg:'Variação 4 semanas',obs:'Observações',provs:'Provedores',
+leads_t:'Leads',leads_p:'Importe os CSV do scraper. Filtre por país, segmento e status, atualize o pipeline e exporte para sua campanha.',
+by_country:'Leads por país',filters:'Filtros',search:'Buscar',country:'País',status:'Status',segment:'Segmento',all:'Todos',
+total:'Total',with_email:'Com e-mail',countries:'Países',contacted:'Contatados',
+st:['Novo','Contatado','Em conversa','Reunião','Proposta','Fechado','Perdido'],
+showing:'Mostrando',of:'de',empty_leads:'Ainda não há leads. Importe o CSV gerado pelo ferro_scraper.py.',
+cols:['Empresa','E-mail','País','Cidade','Segmento','Site','Status']},
+fr:{n_account:"Mon compte",n_admin:"Admin",gate_h:"Connectez-vous à Ferro",gate_p:"Créez votre compte gratuit pour utiliser les modèles RaaS, location de GPU et data center, générer des mémos et enregistrer vos scénarios.",gate_signup:"Créer un compte gratuit",gate_login:"J’ai déjà un compte",back_web:"← Retour au site",up_t:"Ferro Kit sous Excel",up_p:"Les 3 modèles complets pour votre prêteur, avec vidéo.",up_b:"Acheter · 59 $",logout:"Se déconnecter",memo_review:"Demander une revue · 249 $",_unused_demo_bar:"Mode démo : Supabase n’est pas configuré dans assets/config.js. Tout fonctionne, mais sans comptes et les données restent dans ce navigateur.",acc_t:"Mon compte",acc_p:"Vos données, vos achats et vos droits sur vos informations.",acc_profile:"Profil",pf_email:"E-mail",pf_name:"Nom",pf_company:"Entreprise",pf_role:"Fonction",pf_country:"Pays",pf_optin:"Recevoir l’indice Ferro chaque lundi",pf_save:"Enregistrer",pf_saved:"Profil enregistré.",pf_err:"Échec de l’enregistrement. Réessayez.",acc_buy:"Produits",acc_buy_p:"Paiement sécurisé avec Polar. Votre e-mail est prérempli au paiement.",b_kit:"Ferro Kit · 59 $",b_review:"Ferro Review · 249 $",b_pro:"Index Pro · 99 $/mois",acc_orders:"Mes achats et téléchargements",acc_orders_p:"Polar vous envoie l’accès par e-mail. Factures, téléchargements et abonnements sont aussi dans votre portail client.",acc_portal:"Ouvrir le portail client",acc_data:"Confidentialité",acc_data_p:"Vous pouvez demander une copie ou la suppression de vos données à tout moment.",acc_privacy:"Politique de confidentialité",acc_ai:"Usage de l’IA",acc_delete:"Demander la suppression des données",del_subject:"Demande de suppression de données",adm_t:"Admin",adm_p:"Messages de contact, abonnés à l’indice et utilisateurs inscrits. Visible uniquement pour les e-mails administrateurs.",adm_reload:"Actualiser",adm_contacts:"Messages de contact",adm_subs:"Abonnés à l’indice",adm_users:"Utilisateurs inscrits",adm_denied:"Pas de droit administrateur dans la base. Ajoutez votre e-mail à la table admins (voir le GUIDE).",saved_cloud:"Scénario enregistré dans votre compte",loaded_cloud:"Scénarios de votre compte chargés",n_raas:'Modèle RaaS',n_gpu:'Location de GPU',n_dc:'Data center modulaire',n_memo:'Mémo de dossier',n_index:'Indice GPU',n_leads:'Prospects',
+disc:'Outil éducatif. Pas un conseil en investissement.',
+raas_t:'Robot en tant que service (RaaS)',raas_p:'Une flotte de robots louée au mois. Modifiez les hypothèses et vérifiez si le dossier tient avec de la dette.',
+gpu_t:'Location de GPU',gpu_p:'Un cluster de GPU loué à l’heure. Inclut l’énergie, le PUE et le risque de prix.',
+dc_t:'Data center modulaire',dc_p:'Capacité en MW louée aux locataires par kW et par mois.',
+g_asset:'Actif',g_rev:'Revenus',g_cost:'Coûts',g_fin:'Financement',g_exit:'Sortie',
+units:'Unités',price_unit:'Coût par unité ($)',fee:'Loyer mensuel par unité ($)',util:'Utilisation (%)',opex_unit:'Coût d’exploitation mensuel par unité ($)',maint:'Maintenance annuelle (% du coût)',
+gpus:'Nombre de GPU',gpu_cost:'Coût par GPU avec serveur ($)',rate:'Prix par heure-GPU ($)',kw:'Consommation par GPU (kW)',kwh:'Prix de l’énergie ($/kWh)',pue:'PUE',other:'Autres coûts par GPU et par mois ($)',
+mw:'Capacité (MW)',capex_mw:'Coût par MW ($)',rent:'Loyer ($/kW par mois)',occ:'Occupation (%)',opex_pct:'Coûts d’exploitation (% des revenus)',
+down:'Apport (%)',apr:'Taux annuel (%)',term:'Durée du prêt (mois)',horizon:'Horizon (mois)',resid:'Valeur résiduelle finale (%)',disc_rate:'Taux d’actualisation (%)',
+k_dscr:'DSCR moyen',k_dscr_s:'Les prêteurs exigent souvent ≥ 1,25×',k_irr:'TRI des fonds propres (annuel)',k_payback:'Retour sans dette',k_npv:'VAN des fonds propres',k_capex:'Investissement total',k_loan:'Prêt',k_rev:'Revenu mensuel',k_be:'Point mort',
+months:'mois',never:'Jamais rentabilisé',chart_t:'Flux cumulé des fonds propres',sens_t:'Sensibilité du DSCR',sens_rows:'Utilisation',sens_cols:'Prix vs base',
+tbl_t:'Flux de trésorerie mensuel',m:'Mois',rev:'Revenus',opex:'Coûts',debt:'Service de la dette',cf:'Flux fonds propres',cum:'Cumulé',dscr:'DSCR',
+l_ok:'Couvre ≥ 1,25×',l_mid:'1,0–1,25×',l_bad:'< 1,0× ne rembourse pas la dette',
+save:'Enregistrer le scénario',load:'Charger',reset:'Valeurs de base',csv:'Exporter CSV',saved:'Scénario enregistré',
+memo_t:'Mémo de dossier',memo_p:'Brouillon de mémo de dette généré à partir du modèle. Modifiez-le, copiez-le ou imprimez-le en PDF.',memo_struct:'Structure en tranches',
+t_sen:'Tranche senior (%)',t_mez:'Tranche mezzanine (%)',t_company:'Entreprise',t_note:'La tranche junior est le reste. Structure illustrative à discuter avec un prêteur, pas une offre.',
+regen:'Régénérer',copy:'Copier',pdf:'Imprimer / PDF',copied:'Copié',
+idx_t:'Indice Ferro des GPU',idx_p:'Médiane hebdomadaire des prix publics de location par heure-GPU. Importez le CSV du scraper de prix ou chargez l’exemple.',
+import:'Importer CSV',sample:'Charger l’exemple',export:'Exporter CSV',clear:'Vider',idx_chart:'Médiane hebdomadaire',idx_table:'Derniers relevés',
+sample_note:'Données d’EXEMPLE générées pour montrer le format. Ne pas publier comme prix réels.',real_note:'Données importées. Vérifiez source et date avant publication.',
+gpu:'GPU',provider:'Fournisseur',date:'Date',price:'Prix $/h',source:'Source',last:'Dernière médiane',chg:'Variation 4 semaines',obs:'Observations',provs:'Fournisseurs',
+leads_t:'Prospects',leads_p:'Importez les CSV du scraper. Filtrez par pays, segment et statut, mettez à jour le pipeline et exportez pour votre campagne.',
+by_country:'Prospects par pays',filters:'Filtres',search:'Rechercher',country:'Pays',status:'Statut',segment:'Segment',all:'Tous',
+total:'Total',with_email:'Avec e-mail',countries:'Pays',contacted:'Contactés',
+st:['Nouveau','Contacté','En discussion','Rendez-vous','Proposition','Gagné','Perdu'],
+showing:'Affichage',of:'sur',empty_leads:'Aucun prospect. Importez le CSV produit par ferro_scraper.py.',
+cols:['Entreprise','E-mail','Pays','Ville','Segment','Site','Statut']}
+};
+let L='es';const t=k=>I[L][k]??I.es[k]??k;
+const LOC={es:'es-ES',en:'en-US',pt:'pt-BR',fr:'fr-FR'};
+const money=(n,c=0)=>new Intl.NumberFormat(LOC[L],{style:'currency',currency:'USD',maximumFractionDigits:Math.abs(n)>=1e5?1:c,notation:Math.abs(n)>=1e5?'compact':'standard'}).format(n);
+const moneyK=n=>new Intl.NumberFormat(LOC[L],{style:'currency',currency:'USD',notation:'compact',maximumFractionDigits:1}).format(n);
+const num=(n,d=2)=>new Intl.NumberFormat(LOC[L],{maximumFractionDigits:d,minimumFractionDigits:d}).format(n);
+const store={get(k,d){try{const v=localStorage.getItem('ferro_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('ferro_'+k,JSON.stringify(v))}catch(e){}}};
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1600)}
+function download(name,text,type='text/csv'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= finance engine ================= */
+function pmt(r,n,pv){return r===0?pv/n:pv*r/(1-Math.pow(1+r,-n))}
+function irr(cfs){let lo=-0.99,hi=1;const npv=r=>cfs.reduce((s,c,i)=>s+c/Math.pow(1+r,i),0);
+  if(npv(lo)*npv(hi)>0)return null;for(let i=0;i<200;i++){const m=(lo+hi)/2;(npv(lo)*npv(m)<=0)?hi=m:lo=m}return (lo+hi)/2}
+function engine({capex,revM,opexM,down,apr,term,horizon,resid,disc}){
+  const loan=capex*(1-down/100),eq=capex*down/100,r=apr/1200,pay=loan>0?pmt(r,term,loan):0;
+  const rows=[];let cum=-eq;const cfs=[-eq];let dsum=0,dn=0;
+  for(let m=1;m<=horizon;m++){
+    const debt=m<=term?pay:0;const noi=revM-opexM;let cf=noi-debt;
+    if(m===horizon){
+      // balloon: remaining loan balance repaid from residual
+      let bal=0;if(m<term){bal=loan*Math.pow(1+r,m)-pay*((Math.pow(1+r,m)-1)/(r||1e-12));if(r===0)bal=loan-pay*m}
+      cf+=capex*resid/100-Math.max(bal,0);
+    }
+    cum+=cf;cfs.push(cf);if(debt>0){dsum+=noi/debt;dn++}
+    rows.push({m,rev:revM,opex:opexM,debt,cf,cum,dscr:debt>0?noi/debt:null});
+  }
+  const mi=irr(cfs);const irrA=mi==null?null:Math.pow(1+mi,12)-1;
+  const dr=disc/1200;const npv=cfs.reduce((s,c,i)=>s+c/Math.pow(1+dr,i),0);
+  const noi=revM-opexM;
+  return {rows,loan,eq,pay,dscr:dn?dsum/dn:null,irr:irrA,npv,payback:noi>0?capex/noi:null,noi};
+}
+
+/* ================= model definitions ================= */
+const MODELS={
+ raas:{title:'raas_t',desc:'raas_p',
+  groups:[['g_asset',[['units',10,1],['price_unit',180000,1000],['maint',6,.5]]],['g_rev',[['fee',9500,100],['util',75,1]]],['g_cost',[['opex_unit',1200,50]]],['g_fin',[['down',30,1],['apr',11,.25],['term',48,1]]],['g_exit',[['horizon',48,1],['resid',25,1],['disc_rate',12,.5]]]],
+  map:v=>({capex:v.units*v.price_unit,revM:v.units*v.fee*v.util/100,opexM:v.units*v.opex_unit+v.units*v.price_unit*v.maint/1200,down:v.down,apr:v.apr,term:v.term,horizon:v.horizon,resid:v.resid,disc:v.disc_rate}),
+  priceKey:'fee',utilKey:'util',beLabel:v=>{const per=(v.price_unit*(1-v.down/100)); const p=pmt(v.apr/1200,v.term,per);return Math.ceil(((p+v.opex_unit+v.price_unit*v.maint/1200)/v.fee)*100)+'% '+t('util').toLowerCase().replace(' (%)','')}},
+ gpu:{title:'gpu_t',desc:'gpu_p',
+  groups:[['g_asset',[['gpus',64,8],['gpu_cost',32000,500]]],['g_rev',[['rate',2.2,.05],['util',75,1]]],['g_cost',[['kw',1.1,.05],['kwh',0.09,.005],['pue',1.35,.05],['other',180,10]]],['g_fin',[['down',30,1],['apr',13,.25],['term',36,1]]],['g_exit',[['horizon',48,1],['resid',15,1],['disc_rate',14,.5]]]],
+  map:v=>{const h=730;return {capex:v.gpus*v.gpu_cost,revM:v.gpus*v.rate*h*v.util/100,opexM:v.gpus*(v.kw*v.pue*h*v.kwh*(0.4+0.6*v.util/100)+v.other),down:v.down,apr:v.apr,term:v.term,horizon:v.horizon,resid:v.resid,disc:v.disc_rate}},
+  priceKey:'rate',utilKey:'util',beLabel:v=>{const h=730,loan=v.gpu_cost*(1-v.down/100),p=pmt(v.apr/1200,v.term,loan);const cost=p+v.kw*v.pue*h*v.kwh*(0.4+0.6*v.util/100)+v.other;return money(cost/(h*v.util/100),2)+' /GPU-h'}},
+ dc:{title:'dc_t',desc:'dc_p',
+  groups:[['g_asset',[['mw',2,.5],['capex_mw',9500000,100000]]],['g_rev',[['rent',165,5],['occ',85,1]]],['g_cost',[['opex_pct',35,1]]],['g_fin',[['down',35,1],['apr',9.5,.25],['term',120,12]]],['g_exit',[['horizon',120,12],['resid',60,1],['disc_rate',10,.5]]]],
+  map:v=>{const rev=v.mw*1000*v.rent*v.occ/100;return {capex:v.mw*v.capex_mw,revM:rev,opexM:rev*v.opex_pct/100,down:v.down,apr:v.apr,term:v.term,horizon:v.horizon,resid:v.resid,disc:v.disc_rate}},
+  priceKey:'rent',utilKey:'occ',beLabel:v=>{const loan=v.mw*v.capex_mw*(1-v.down/100),p=pmt(v.apr/1200,v.term,loan);return Math.ceil(p/(v.mw*1000*v.rent*(1-v.opex_pct/100))*100)+'% '+t('occ').toLowerCase().replace(' (%)','')}}
+};
+const STATE={};for(const k in MODELS){const base={};MODELS[k].groups.forEach(g=>g[1].forEach(f=>base[f[0]]=f[1]));MODELS[k].base=base;STATE[k]=Object.assign({},base,store.get('model_'+k,{}))}
+
+function dscrClass(d){return d==null?'':d>=1.25?'good':d>=1?'mid':'bad'}
+function renderModel(k){
+  const M=MODELS[k],v=STATE[k],el=document.getElementById('v-'+k);
+  el.innerHTML=`<div class="head"><div><h1>${t(M.title)}</h1><p>${t(M.desc)}</p></div>
+   <div class="tools"><button class="btn ghost" data-act="reset">${t('reset')}</button><button class="btn ghost" data-act="csv">${t('csv')}</button><button class="btn" data-act="save">${t('save')}</button></div></div>
+   <div class="cols"><div class="card"><form class="form" onsubmit="return false">${M.groups.map(g=>`<div class="grp">${t(g[0])}</div>`+g[1].map(f=>`<div class="fld"><label for="${k}_${f[0]}">${t(f[0])}</label><input type="number" id="${k}_${f[0]}" data-k="${f[0]}" step="${f[2]}" value="${v[f[0]]}"></div>`).join('')).join('')}</form></div>
+   <div><div class="kpis" id="${k}_kpis"></div>
+   <div class="card"><h2>${t('chart_t')}</h2><svg class="chart" id="${k}_chart" role="img" aria-label="${t('chart_t')}"></svg></div>
+   <div class="grid2" style="margin-top:16px;grid-template-columns:1fr"><div class="card"><h2>${t('sens_t')}</h2><div class="tablewrap" style="max-height:none"><table class="sens" id="${k}_sens"></table></div><div class="legend"><span><i style="background:rgba(30,143,90,.25)"></i>${t('l_ok')}</span><span><i style="background:rgba(183,134,31,.25)"></i>${t('l_mid')}</span><span><i style="background:rgba(180,73,44,.25)"></i>${t('l_bad')}</span></div></div>
+   <div class="card"><h2>${t('tbl_t')}</h2><div class="tablewrap" style="max-height:330px"><table id="${k}_tbl"></table></div></div></div></div></div>`;
+  el.querySelectorAll('input[data-k]').forEach(i=>i.addEventListener('input',()=>{const x=parseFloat(i.value);if(!isNaN(x)){v[i.dataset.k]=x;compute(k)}}));
+  el.querySelector('[data-act=reset]').onclick=()=>{STATE[k]=Object.assign({},M.base);store.set('model_'+k,{});renderModel(k)};
+  el.querySelector('[data-act=save]').onclick=()=>{store.set('model_'+k,v);cloudSave(k,v).then(ok=>toast(ok?t('saved_cloud'):t('saved')))};
+  el.querySelector('[data-act=csv]').onclick=()=>{const r=engine(M.map(v));download(`ferro-${k}.csv`,['month,revenue,opex,debt_service,equity_cf,cumulative,dscr',...r.rows.map(x=>[x.m,x.rev.toFixed(2),x.opex.toFixed(2),x.debt.toFixed(2),x.cf.toFixed(2),x.cum.toFixed(2),x.dscr==null?'':x.dscr.toFixed(3)].join(','))].join('\n'))};
+  compute(k);
+}
+function compute(k){
+  const M=MODELS[k],v=STATE[k],r=engine(M.map(v)),inp=M.map(v);
+  const pb=r.payback;
+  document.getElementById(k+'_kpis').innerHTML=[
+   [t('k_dscr'),r.dscr==null?'—':num(r.dscr)+'×',t('k_dscr_s'),dscrClass(r.dscr)],
+   [t('k_irr'),r.irr==null?'—':num(r.irr*100,1)+'%','',r.irr==null?'bad':r.irr>0.15?'good':r.irr>0?'mid':'bad'],
+   [t('k_payback'),pb?num(pb,1)+' '+t('months'):t('never'),'',pb&&pb<=v.horizon?'good':'bad'],
+   [t('k_npv'),money(r.npv),'',r.npv>0?'good':'bad'],
+   [t('k_capex'),money(inp.capex),'',''],[t('k_loan'),money(r.loan),money(r.pay)+' /'+t('m').toLowerCase(),''],
+   [t('k_rev'),money(inp.revM),'',''],[t('k_be'),M.beLabel(v),'','']
+  ].map(x=>`<div class="kpi"><div class="l">${x[0]}</div><div class="v ${x[3]}">${x[1]}</div>${x[2]?`<div class="s" style="color:var(--muted)">${x[2]}</div>`:''}</div>`).join('');
+  // chart
+  drawLine(document.getElementById(k+'_chart'),[{pts:r.rows.map(x=>[x.m,x.cum]),color:'#1F4FA3'}],{zero:true,fmtY:y=>moneyK(y)});
+  // table
+  document.getElementById(k+'_tbl').innerHTML=`<tr><th>${t('m')}</th><th>${t('rev')}</th><th>${t('opex')}</th><th>${t('debt')}</th><th>${t('cf')}</th><th>${t('cum')}</th><th>${t('dscr')}</th></tr>`+
+   r.rows.map(x=>`<tr><td>${x.m}</td><td>${money(x.rev)}</td><td>${money(x.opex)}</td><td>${money(x.debt)}</td><td class="${x.cf<0?'bad':''}">${money(x.cf)}</td><td class="${x.cum<0?'bad':'good'}">${money(x.cum)}</td><td class="${dscrClass(x.dscr)}">${x.dscr==null?'—':num(x.dscr)}</td></tr>`).join('');
+  // sensitivity
+  const utils=[40,55,70,85,100],mults=[.7,.85,1,1.15,1.3];
+  document.getElementById(k+'_sens').innerHTML=`<tr><th>${t('sens_rows')} ↓ · ${t('sens_cols')} →</th>${mults.map(m=>`<th>${Math.round(m*100)}%</th>`).join('')}</tr>`+
+   utils.map(u=>`<tr><th>${u}%</th>${mults.map(m=>{const vv=Object.assign({},v,{[M.utilKey]:u,[M.priceKey]:v[M.priceKey]*m});const d=engine(M.map(vv)).dscr;const c=d==null?'':d>=1.25?'rgba(30,143,90,.22)':d>=1?'rgba(183,134,31,.22)':'rgba(180,73,44,.22)';return `<td style="background:${c}">${d==null?'—':num(d)}</td>`}).join('')}</tr>`).join('');
+  if(currentView==='memo')genMemo();
+}
+
+/* ================= SVG line chart ================= */
+function drawLine(svg,series,opt={}){
+  const W=svg.clientWidth||700,H=svg.clientHeight||240,P={l:100,r:14,t:12,b:26};
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const all=series.flatMap(s=>s.pts);if(!all.length){svg.innerHTML='';return}
+  let x0=Math.min(...all.map(p=>p[0])),x1=Math.max(...all.map(p=>p[0])),y0=Math.min(...all.map(p=>p[1])),y1=Math.max(...all.map(p=>p[1]));
+  if(opt.zero){y0=Math.min(y0,0);y1=Math.max(y1,0)}if(y0===y1){y1+=1}if(x0===x1)x1+=1;
+  const pad=(y1-y0)*.08;y0-=pad;y1+=pad;
+  const X=x=>P.l+(x-x0)/(x1-x0)*(W-P.l-P.r),Y=y=>P.t+(1-(y-y0)/(y1-y0))*(H-P.t-P.b);
+  const css=getComputedStyle(document.documentElement);const mut=css.getPropertyValue('--muted'),ln=css.getPropertyValue('--line');
+  let g='';for(let i=0;i<=4;i++){const yy=y0+(y1-y0)*i/4;g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(yy)}" y2="${Y(yy)}" stroke="${ln}"/><text x="${P.l-8}" y="${Y(yy)+4}" text-anchor="end" font-size="11" fill="${mut}">${(opt.fmtY||(v=>v.toFixed(2)))(yy)}</text>`}
+  const xt=opt.xLabels||null;
+  if(xt){xt.forEach((lab,i)=>{if(i%Math.ceil(xt.length/6)===0)g+=`<text x="${X(i)}" y="${H-6}" font-size="11" text-anchor="middle" fill="${mut}">${lab}</text>`})}
+  else{for(let i=0;i<=5;i++){const xx=Math.round(x0+(x1-x0)*i/5);g+=`<text x="${X(xx)}" y="${H-6}" font-size="11" text-anchor="middle" fill="${mut}">${xx}</text>`}}
+  if(opt.zero&&y0<0&&y1>0)g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="#B4492C" stroke-dasharray="4 3"/>`;
+  series.forEach(s=>{g+=`<polyline fill="none" stroke="${s.color}" stroke-width="2" points="${s.pts.map(p=>X(p[0])+','+Y(p[1])).join(' ')}"/>`;const l=s.pts[s.pts.length-1];g+=`<circle cx="${X(l[0])}" cy="${Y(l[1])}" r="3.5" fill="#B4492C"/>`});
+  svg.innerHTML=g;
+}
+
+/* ================= memo ================= */
+const MEMO={
+es:(c,k,M,v,r,inp,s,mz,j)=>`DEAL MEMO · ${c}\nPreparado con Ferro · ${new Date().toLocaleDateString('es-ES')}\nDocumento de trabajo. No es una oferta de financiamiento ni asesoría de inversión.\n\n1. RESUMEN\n${c} busca ${money(r.loan)} de deuda para financiar ${t(M.title)} con una inversión total de ${money(inp.capex)}. El activo genera ${money(inp.revM)} al mes y deja un ingreso operativo neto de ${money(r.noi)} mensuales.\n\n2. ESTRUCTURA PROPUESTA (ILUSTRATIVA)\n• Senior ${s}%: ${money(inp.capex*s/100)}\n• Mezzanine ${mz}%: ${money(inp.capex*mz/100)}\n• Junior / equity ${j}%: ${money(inp.capex*j/100)}\nPréstamo modelado: ${num(v.apr,2)}% anual a ${v.term} meses, cuota de ${money(r.pay)}.\n\n3. MÉTRICAS CLAVE\n• DSCR promedio: ${r.dscr==null?'—':num(r.dscr)+'×'} (referencia de mercado ≥ 1,25×)\n• TIR del equity: ${r.irr==null?'—':num(r.irr*100,1)+'%'}\n• Payback sin deuda: ${r.payback?num(r.payback,1)+' meses':'no se paga'}\n• Valor residual supuesto: ${v.resid}% del costo al mes ${v.horizon}\n\n4. RIESGOS PRINCIPALES\n• Utilización: es la variable que más mueve el DSCR. Ver tabla de sensibilidad.\n• Precio: una caída del 15–30% en la tarifa reduce la cobertura de la deuda.\n• Valor residual: depende de la obsolescencia tecnológica del activo.\n• Contraparte: concentración de clientes y plazo de los contratos.\n\n5. MITIGANTES SUGERIDOS\n• Contratos de plazo igual o mayor al préstamo.\n• Reserva de liquidez equivalente a 3–6 cuotas.\n• Cláusulas de recompra o remarketing del activo con el fabricante.\n\n6. PRÓXIMOS PASOS\nValidar supuestos con datos reales de operación (12 meses si existen), contratos firmados y cotizaciones del fabricante.`,
+en:(c,k,M,v,r,inp,s,mz,j)=>`DEAL MEMO · ${c}\nPrepared with Ferro · ${new Date().toLocaleDateString('en-US')}\nWorking document. Not a financing offer or investment advice.\n\n1. SUMMARY\n${c} seeks ${money(r.loan)} of debt to finance ${t(M.title)} with total investment of ${money(inp.capex)}. The asset generates ${money(inp.revM)} per month and net operating income of ${money(r.noi)} per month.\n\n2. PROPOSED STRUCTURE (ILLUSTRATIVE)\n• Senior ${s}%: ${money(inp.capex*s/100)}\n• Mezzanine ${mz}%: ${money(inp.capex*mz/100)}\n• Junior / equity ${j}%: ${money(inp.capex*j/100)}\nModeled loan: ${num(v.apr,2)}% annual over ${v.term} months, payment ${money(r.pay)}.\n\n3. KEY METRICS\n• Average DSCR: ${r.dscr==null?'—':num(r.dscr)+'×'} (market reference ≥ 1.25×)\n• Equity IRR: ${r.irr==null?'—':num(r.irr*100,1)+'%'}\n• Unlevered payback: ${r.payback?num(r.payback,1)+' months':'never'}\n• Assumed residual value: ${v.resid}% of cost at month ${v.horizon}\n\n4. KEY RISKS\n• Utilization: the variable that moves DSCR most. See sensitivity table.\n• Price: a 15–30% drop in rates reduces debt coverage.\n• Residual value: depends on technological obsolescence.\n• Counterparty: customer concentration and contract length.\n\n5. SUGGESTED MITIGANTS\n• Contracts at least as long as the loan.\n• Liquidity reserve of 3–6 payments.\n• Buy-back or remarketing agreement with the manufacturer.\n\n6. NEXT STEPS\nValidate assumptions with real operating data (12 months if available), signed contracts and manufacturer quotes.`,
+pt:(c,k,M,v,r,inp,s,mz,j)=>`MEMORANDO DA OPERAÇÃO · ${c}\nPreparado com a Ferro · ${new Date().toLocaleDateString('pt-BR')}\nDocumento de trabalho. Não é oferta de financiamento nem recomendação de investimento.\n\n1. RESUMO\n${c} busca ${money(r.loan)} em dívida para financiar ${t(M.title)} com investimento total de ${money(inp.capex)}. O ativo gera ${money(inp.revM)} por mês e receita operacional líquida de ${money(r.noi)} mensais.\n\n2. ESTRUTURA PROPOSTA (ILUSTRATIVA)\n• Sênior ${s}%: ${money(inp.capex*s/100)}\n• Mezanino ${mz}%: ${money(inp.capex*mz/100)}\n• Júnior / equity ${j}%: ${money(inp.capex*j/100)}\nEmpréstimo modelado: ${num(v.apr,2)}% ao ano em ${v.term} meses, parcela de ${money(r.pay)}.\n\n3. MÉTRICAS-CHAVE\n• DSCR médio: ${r.dscr==null?'—':num(r.dscr)+'×'} (referência de mercado ≥ 1,25×)\n• TIR do equity: ${r.irr==null?'—':num(r.irr*100,1)+'%'}\n• Payback sem dívida: ${r.payback?num(r.payback,1)+' meses':'não se paga'}\n• Valor residual assumido: ${v.resid}% do custo no mês ${v.horizon}\n\n4. PRINCIPAIS RISCOS\n• Utilização: a variável que mais move o DSCR. Veja a tabela de sensibilidade.\n• Preço: uma queda de 15–30% na tarifa reduz a cobertura da dívida.\n• Valor residual: depende da obsolescência tecnológica.\n• Contraparte: concentração de clientes e prazo dos contratos.\n\n5. MITIGANTES SUGERIDOS\n• Contratos com prazo igual ou maior que o empréstimo.\n• Reserva de liquidez de 3–6 parcelas.\n• Acordo de recompra ou revenda com o fabricante.\n\n6. PRÓXIMOS PASSOS\nValidar premissas com dados reais de operação (12 meses, se houver), contratos assinados e cotações do fabricante.`,
+fr:(c,k,M,v,r,inp,s,mz,j)=>`MÉMO DE DOSSIER · ${c}\nPréparé avec Ferro · ${new Date().toLocaleDateString('fr-FR')}\nDocument de travail. Ni offre de financement ni conseil en investissement.\n\n1. RÉSUMÉ\n${c} recherche ${money(r.loan)} de dette pour financer ${t(M.title)} pour un investissement total de ${money(inp.capex)}. L’actif génère ${money(inp.revM)} par mois et un résultat d’exploitation net de ${money(r.noi)} par mois.\n\n2. STRUCTURE PROPOSÉE (ILLUSTRATIVE)\n• Senior ${s} % : ${money(inp.capex*s/100)}\n• Mezzanine ${mz} % : ${money(inp.capex*mz/100)}\n• Junior / fonds propres ${j} % : ${money(inp.capex*j/100)}\nPrêt modélisé : ${num(v.apr,2)} % par an sur ${v.term} mois, échéance de ${money(r.pay)}.\n\n3. INDICATEURS CLÉS\n• DSCR moyen : ${r.dscr==null?'—':num(r.dscr)+'×'} (référence de marché ≥ 1,25×)\n• TRI des fonds propres : ${r.irr==null?'—':num(r.irr*100,1)+' %'}\n• Retour sans dette : ${r.payback?num(r.payback,1)+' mois':'jamais'}\n• Valeur résiduelle supposée : ${v.resid} % du coût au mois ${v.horizon}\n\n4. RISQUES PRINCIPAUX\n• Utilisation : la variable qui fait le plus bouger le DSCR. Voir la table de sensibilité.\n• Prix : une baisse de 15 à 30 % du tarif réduit la couverture de la dette.\n• Valeur résiduelle : dépend de l’obsolescence technologique.\n• Contrepartie : concentration des clients et durée des contrats.\n\n5. ATTÉNUATIONS SUGGÉRÉES\n• Contrats d’une durée au moins égale au prêt.\n• Réserve de liquidité de 3 à 6 échéances.\n• Accord de rachat ou de revente avec le fabricant.\n\n6. PROCHAINES ÉTAPES\nValider les hypothèses avec des données d’exploitation réelles (12 mois si disponibles), des contrats signés et des devis du fabricant.`
+};
+function genMemo(){
+  const k=document.getElementById('memo_src').value||'raas',M=MODELS[k],v=STATE[k],inp=M.map(v),r=engine(inp);
+  let s=+document.getElementById('t_sen').value||0,mz=+document.getElementById('t_mez').value||0;if(s+mz>100){mz=Math.max(0,100-s)}const j=100-s-mz;
+  document.getElementById('memo_tr').innerHTML=[['Senior',s,'#0F2A4A'],['Mezzanine',mz,'#1F4FA3'],['Junior',j,'#B4492C']].map(x=>`<div class="tr"><span>${x[0]} ${x[1]}%</span><span class="bar" style="width:${Math.max(x[1],2)}%;background:${x[2]}"></span><b>${money(inp.capex*x[1]/100)}</b></div>`).join('');
+  document.getElementById('memo_txt').value=MEMO[L](document.getElementById('t_company').value||'—',k,M,v,r,inp,s,mz,j);
+}
+
+/* ================= CSV parsing ================= */
+function parseCSV(text){
+  text=text.replace(/^\ufeff/,'');const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;else if(c===','){row.push(f);f=''}else if(c==='\n'){row.push(f);rows.push(row);row=[];f=''}else if(c!=='\r')f+=c}
+  if(f||row.length){row.push(f);rows.push(row)}
+  const h=(rows.shift()||[]).map(x=>x.trim().toLowerCase());
+  return rows.filter(r=>r.some(x=>x.trim())).map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]||'').trim()])));
+}
+const toCSV=(cols,rows)=>[cols.join(','),...rows.map(r=>cols.map(c=>{const s=String(r[c]??'');return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}).join(','))].join('\n');
+
+/* ================= GPU index ================= */
+let IDX=store.get('index',null);
+function sampleIndex(){
+  // Deterministic synthetic data, labeled as SAMPLE in the UI.
+  const gpus={'H100 SXM':2.6,'H200':3.4,'A100 80GB':1.35,'L40S':0.95,'B200':5.2},provs=['Provider A','Provider B','Provider C','Provider D','Provider E'];
+  let seed=7;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+  const out=[];const today=new Date();
+  for(let w=12;w>=0;w--){const d=new Date(today);d.setDate(d.getDate()-w*7);const ds=d.toISOString().slice(0,10);
+    for(const g in gpus){const trend=1-(12-w)*0.012;provs.forEach(p=>{out.push({date:ds,gpu:g,provider:p,price_usd_hr:(gpus[g]*trend*(0.82+rnd()*0.36)).toFixed(2),source_url:'sample'})})}}
+  return {sample:true,rows:out};
+}
+function median(a){const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length?s.length%2?s[m]:(s[m-1]+s[m])/2:NaN}
+function weekKey(ds){const d=new Date(ds+'T00:00:00');if(isNaN(d))return ds;const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10)}
+function renderIndex(){
+  if(!IDX)IDX=sampleIndex();
+  const rows=IDX.rows.filter(r=>r.gpu&&!isNaN(parseFloat(r.price_usd_hr)));
+  const gpus=[...new Set(rows.map(r=>r.gpu))].sort();
+  const sel=document.getElementById('idx_gpu');const cur=sel.value||gpus[0];
+  sel.innerHTML=gpus.map(g=>`<option ${g===cur?'selected':''}>${esc(g)}</option>`).join('');
+  const byG={};rows.forEach(r=>{const w=weekKey(r.date);((byG[r.gpu]??={})[w]??=[]).push(parseFloat(r.price_usd_hr))});
+  const series=g=>Object.keys(byG[g]||{}).sort().map(w=>[w,median(byG[g][w])]);
+  document.getElementById('idx_kpis').innerHTML=gpus.slice(0,4).map(g=>{const s=series(g),last=s.at(-1)?.[1],prev=s.at(-5)?.[1]??s[0]?.[1];const ch=prev?(last/prev-1)*100:0;
+    return `<div class="kpi"><div class="l">${esc(g)} · ${t('last')}</div><div class="v">${money(last,2)}</div><div class="s ${ch>=0?'good':'bad'}">${ch>=0?'+':''}${num(ch,1)}% · ${t('chg')}</div></div>`}).join('');
+  const s=series(sel.value);
+  drawLine(document.getElementById('idx_svg'),[{pts:s.map((p,i)=>[i,p[1]]),color:'#1F4FA3'}],{xLabels:s.map(p=>p[0].slice(5)),fmtY:y=>'$'+y.toFixed(2)});
+  const n=document.getElementById('idx_note');n.textContent=(IDX.sample?t('sample_note'):t('real_note'))+` · ${t('obs')}: ${rows.length} · ${t('provs')}: ${new Set(rows.map(r=>r.provider)).size}`;n.className='note '+(IDX.sample?'bad':'');
+  const last=[...rows].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,200);
+  document.getElementById('idx_tbl').innerHTML=`<tr><th>${t('date')}</th><th>${t('gpu')}</th><th>${t('provider')}</th><th>${t('price')}</th><th>${t('source')}</th></tr>`+last.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.gpu)}</td><td>${esc(r.provider)}</td><td>${money(+r.price_usd_hr,2)}</td><td>${/^https?:/.test(r.source_url)?`<a href="${esc(r.source_url)}" target="_blank" rel="noopener">link</a>`:esc(r.source_url)}</td></tr>`).join('');
+}
+document.getElementById('idx_gpu').addEventListener('change',renderIndex);
+document.getElementById('idx_sample').onclick=()=>{IDX=sampleIndex();store.set('index',null);renderIndex()};
+document.getElementById('idx_file').onchange=async e=>{const f=e.target.files[0];if(!f)return;const rows=parseCSV(await f.text());IDX={sample:false,rows};store.set('index',IDX);renderIndex();e.target.value=''};
+document.getElementById('idx_export').onclick=()=>download('ferro-index.csv',toCSV(['date','gpu','provider','price_usd_hr','source_url'],IDX.rows));
+
+/* ================= Leads CRM ================= */
+let LEADS=store.get('leads',[]);let page=0;const PER=100;
+function normLead(r){return {company:r.company||r.empresa||r.name||'',email:(r.email||r.correo||'').toLowerCase(),country:r.country||r.pais||'',city:r.city||r.ciudad||'',segment:r.segment||r.icp||r.segmento||'',website:r.website||r.domain||r.web||'',contact_name:r.contact_name||'',title:r.title||'',phone:r.phone||'',linkedin:r.linkedin||'',source:r.source||r.source_url||'',status:r.status||'0',lang:r.lang||''}}
+function renderLeads(){
+  const sts=t('st');
+  const fill=(id,vals,lab)=>{const el=document.getElementById(id),cur=el.value;el.innerHTML=`<option value="">${t('all')}</option>`+vals.map((v,i)=>`<option value="${esc(lab?i:v)}">${esc(lab?v:v)}</option>`).join('');el.value=cur};
+  fill('ld_country',[...new Set(LEADS.map(l=>l.country).filter(Boolean))].sort());fill('ld_status',sts,true);fill('ld_seg',[...new Set(LEADS.map(l=>l.segment).filter(Boolean))].sort());
+  const q=document.getElementById('ld_q').value.toLowerCase(),c=document.getElementById('ld_country').value,s=document.getElementById('ld_status').value,sg=document.getElementById('ld_seg').value;
+  const F=LEADS.map((l,i)=>[l,i]).filter(([l])=>(!q||(l.company+l.email+l.city+l.website).toLowerCase().includes(q))&&(!c||l.country===c)&&(s===''||String(l.status)===s)&&(!sg||l.segment===sg));
+  const cnt={};LEADS.forEach(l=>cnt[l.country||'—']=(cnt[l.country||'—']||0)+1);const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10),mx=top[0]?.[1]||1;
+  document.getElementById('ld_bars').innerHTML=top.length?top.map(([k,v])=>`<div><span>${esc(k)}</span><span class="b" style="width:${v/mx*100}%"></span><b>${v}</b></div>`).join(''):`<div class="empty">${t('empty_leads')}</div>`;
+  document.getElementById('ld_kpis').innerHTML=[[t('total'),LEADS.length],[t('with_email'),LEADS.filter(l=>l.email).length],[t('countries'),new Set(LEADS.map(l=>l.country).filter(Boolean)).size],[t('contacted'),LEADS.filter(l=>+l.status>=1&&+l.status<=5).length]].map(x=>`<div class="kpi"><div class="l">${x[0]}</div><div class="v">${x[1].toLocaleString(LOC[L])}</div></div>`).join('');
+  const cols=t('cols');const P=F.slice(page*PER,page*PER+PER);
+  document.getElementById('ld_tbl').innerHTML=F.length?`<tr>${cols.map(h=>`<th>${h}</th>`).join('')}</tr>`+P.map(([l,i])=>`<tr><td>${esc(l.company)}</td><td><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></td><td>${esc(l.country)}</td><td>${esc(l.city)}</td><td><span class="pill">${esc(l.segment)}</span></td><td>${l.website?`<a href="${esc(/^https?:/.test(l.website)?l.website:'https://'+l.website)}" target="_blank" rel="noopener">${esc(l.website.replace(/^https?:\/\//,'').slice(0,32))}</a>`:''}</td><td><select class="st" data-i="${i}">${sts.map((x,j)=>`<option value="${j}" ${+l.status===j?'selected':''}>${x}</option>`).join('')}</select></td></tr>`).join(''):`<tr><td class="empty">${t('empty_leads')}</td></tr>`;
+  const pages=Math.max(1,Math.ceil(F.length/PER));
+  document.getElementById('ld_page').innerHTML=`${t('showing')} ${F.length?page*PER+1:0}–${Math.min(F.length,(page+1)*PER)} ${t('of')} ${F.length} ${pages>1?` · <button class="btn ghost" id="pg_prev" ${page===0?'disabled':''}>‹</button> <button class="btn ghost" id="pg_next" ${page>=pages-1?'disabled':''}>›</button>`:''}`;
+  document.getElementById('pg_prev')?.addEventListener('click',()=>{page--;renderLeads()});document.getElementById('pg_next')?.addEventListener('click',()=>{page++;renderLeads()});
+}
+document.getElementById('ld_tbl').addEventListener('change',e=>{if(e.target.matches('select.st')){LEADS[+e.target.dataset.i].status=e.target.value;store.set('leads',LEADS);renderLeads()}});
+['ld_q','ld_country','ld_status','ld_seg'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{page=0;renderLeads()}));
+document.getElementById('ld_file').onchange=async e=>{let added=0;const seen=new Set(LEADS.map(l=>l.email||l.website));
+  for(const f of e.target.files){for(const r of parseCSV(await f.text())){const l=normLead(r);const key=l.email||l.website;if(key&&!seen.has(key)){seen.add(key);LEADS.push(l);added++}}}
+  store.set('leads',LEADS);page=0;renderLeads();toast('+'+added);e.target.value=''};
+document.getElementById('ld_clear').onclick=()=>{if(confirm('?')){LEADS=[];store.set('leads',LEADS);renderLeads()}};
+document.getElementById('ld_export').onclick=()=>{const sts=I.en.st;download('ferro-leads.csv',toCSV(['company','contact_name','title','email','phone','country','city','segment','website','linkedin','source','status','lang'],LEADS.map(l=>({...l,status:sts[+l.status]||l.status}))))};
+
+/* ================= routing & language ================= */
+let currentView='raas';
+function show(v){
+  if(!document.getElementById('v-'+v))v='raas';
+  if((v==='leads'||v==='admin')&&FX&&FX.configured&&!(USER&&FX.isAdmin(USER)))v='raas';
+  if((v==='admin'||v==='account')&&!(FX&&FX.configured))v='raas';
+  currentView=v;
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  document.querySelectorAll('.navbtn').forEach(b=>b.setAttribute('aria-current',b.dataset.v===v?'page':'false'));
+  if(MODELS[v])renderModel(v);if(v==='memo')genMemo();if(v==='index')renderIndex();if(v==='leads')renderLeads();
+  if(v==='account')renderAccount();if(v==='admin')renderAdmin();
+  if(location.hash.slice(1)!==v&&!/access_token|error_description|type=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search+'#'+v);
+}
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>show(b.dataset.v)));
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+function setLang(l){L=I[l]?l:'es';document.documentElement.lang=L;if(window.Ferro)Ferro.setLang(L);document.getElementById('lang').value=L;document.getElementById('gate_lang').value=L;
+  ['back_web','gate_back'].forEach(id=>document.getElementById(id).href='index.html?lang='+L);
+  if(window.Ferro){document.getElementById('legal_priv').href=Ferro.legalUrl('privacy');document.getElementById('legal_ai').href=Ferro.legalUrl('ai');}
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=I[L][el.dataset.i];if(typeof v==='string')el.textContent=v});
+  document.getElementById('memo_src').innerHTML=Object.keys(MODELS).map(k=>`<option value="${k}">${t(MODELS[k].title)}</option>`).join('');
+  show(currentView)}
+document.getElementById('lang').onchange=e=>setLang(e.target.value);
+['memo_src','t_sen','t_mez','t_company'].forEach(id=>document.getElementById(id).addEventListener('input',genMemo));
+document.getElementById('memo_gen').onclick=genMemo;
+document.getElementById('memo_copy').onclick=()=>{navigator.clipboard?.writeText(document.getElementById('memo_txt').value);toast(t('copied'))};
+window.addEventListener('resize',()=>{if(MODELS[currentView])compute(currentView);if(currentView==='index')renderIndex()});
+document.getElementById('gate_lang').onchange=e=>setLang(e.target.value);
+
+/* ================= cuentas, nube y compras ================= */
+const FX=window.Ferro,CFG=window.FERRO_CONFIG||{};
+let USER=null;
+async function cloudSave(k,v){if(!FX||!USER)return false;return FX.db.saveScenario(k,v)}
+async function cloudLoad(){if(!FX||!USER)return;
+  try{const o=await FX.db.loadScenarios();const ks=Object.keys(o||{});
+    if(ks.length){ks.forEach(m=>{if(MODELS[m]&&o[m]){STATE[m]=Object.assign({},MODELS[m].base,o[m]);store.set('model_'+m,STATE[m])}});if(MODELS[currentView])renderModel(currentView);toast(t('loaded_cloud'))}}catch(e){}}
+async function renderAccount(){
+  const note=document.getElementById('pf_note');note.textContent='';
+  document.getElementById('pf_email').value=USER?USER.email:'—';
+  const portal=(CFG.polar||{}).portal;const pl=document.getElementById('portal_link');pl.hidden=!portal;if(portal)pl.href=portal;
+  const mail=CFG.email||'manyosa@limly.io';document.getElementById('del_req').href='mailto:'+mail+'?subject='+encodeURIComponent('Ferro · '+t('del_subject'))+'&body='+encodeURIComponent((USER?USER.email:'')+'\n');
+  const md=(USER&&USER.user_metadata)||{};
+  document.getElementById('pf_name').value=md.full_name||md.name||'';
+  if(FX&&USER){try{const d=await FX.db.getProfile();
+    if(d){document.getElementById('pf_name').value=d.full_name||'';document.getElementById('pf_company').value=d.company||'';document.getElementById('pf_role').value=d.role||'';document.getElementById('pf_country').value=d.country||'';document.getElementById('pf_optin').checked=!!d.marketing_opt_in}}catch(e){}}
+}
+document.getElementById('pf_save').onclick=async()=>{const note=document.getElementById('pf_note');
+  const row={full_name:document.getElementById('pf_name').value.trim(),company:document.getElementById('pf_company').value.trim(),role:document.getElementById('pf_role').value.trim(),country:document.getElementById('pf_country').value.trim(),marketing_opt_in:document.getElementById('pf_optin').checked,lang:L,updated_at:new Date().toISOString()};
+  store.set('profile',row);
+  if(!FX||!USER){note.textContent=t('pf_saved');return}
+  try{await FX.db.saveProfile(row);note.textContent=t('pf_saved');
+    if(row.marketing_opt_in)FX.subscribe({email:USER.email,country:row.country,role:row.role,source:'app_profile'})}catch(e){note.textContent=t('pf_err')}};
+const doLogout=()=>{if(FX)FX.signOut().then(()=>{location.href='index.html?lang='+L})};
+document.getElementById('logout').onclick=doLogout;document.getElementById('pf_logout').onclick=doLogout;
+let ADM={c:[],s:[],u:[]};
+async function renderAdmin(){const k=document.getElementById('adm_kpis');
+  if(!FX||!FX.configured||!USER){k.innerHTML=`<div class="kpi"><div class="l">${t('adm_denied')}</div></div>`;return}
+  const pick=(rows,cols)=>(rows||[]).map(r=>{const o={};cols.forEach(c=>o[c]=r[c]==null?'':r[c]);return o});
+  const q=(tb)=>FX.db.adminList(tb).then(d=>({data:d}),e=>({error:e}));
+  const [rc,rs,ru]=await Promise.all([q('contact_messages'),q('subscribers'),q('profiles')]);
+  if(rc.error&&rs.error){k.innerHTML=`<div class="kpi"><div class="l">${t('adm_denied')}</div></div>`;return}
+  ADM={c:pick(rc.data,['created_at','name','email','company','country','topic','message','lang','status']),s:pick(rs.data,['created_at','email','country','role','lang','source']),u:pick(ru.data,['created_at','email','full_name','company','role','country','lang','marketing_opt_in'])};
+  k.innerHTML=[[t('adm_contacts'),ADM.c.length],[t('adm_subs'),ADM.s.length],[t('adm_users'),ADM.u.length]].map(x=>`<div class="kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  const tbl=(id,rows)=>{const el=document.getElementById(id);if(!rows.length){el.innerHTML='<tr><td class="empty">—</td></tr>';return}const cols=Object.keys(rows[0]);
+    el.innerHTML=`<tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>`+rows.map(r=>`<tr>${cols.map(c=>`<td style="white-space:${c==='message'?'normal':'nowrap'};max-width:${c==='message'?'420px':'none'}">${esc(c==='created_at'?String(r[c]).slice(0,16).replace('T',' '):r[c])}</td>`).join('')}</tr>`).join('')};
+  tbl('adm_tc',ADM.c);tbl('adm_ts',ADM.s);tbl('adm_tu',ADM.u);
+}
+document.getElementById('adm_reload').onclick=renderAdmin;
+const expA=(rows,name)=>{if(rows.length)download(name,toCSV(Object.keys(rows[0]),rows))};
+document.getElementById('adm_exp_c').onclick=()=>expA(ADM.c,'ferro-contactos.csv');
+document.getElementById('adm_exp_s').onclick=()=>expA(ADM.s,'ferro-suscriptores.csv');
+document.getElementById('adm_exp_u').onclick=()=>expA(ADM.u,'ferro-usuarios.csv');
+
+function applyUser(u){
+  const wasNull=!USER;USER=u||null;
+  const needLogin=FX&&FX.configured&&CFG.requireLogin!==false;
+  document.getElementById('gate').hidden=!(needLogin&&!USER);
+  document.getElementById('appwrap').style.visibility=(needLogin&&!USER)?'hidden':'visible';
+  document.getElementById('who').hidden=!USER;document.getElementById('who_email').textContent=USER?USER.email:'';
+  document.getElementById('nav_admin').hidden=!(USER&&FX&&FX.isAdmin(USER));
+  const cfgd=!!(FX&&FX.configured);
+  // Sin cuentas: "Mi cuenta" no se muestra. El CRM de prospectos (scraper) solo lo ve un administrador
+  // (sin cuentas, solo entrando por la dirección app.html#leads).
+  document.querySelector('.navbtn[data-v="account"]').hidden=!cfgd;
+  const canLeads=cfgd&&USER&&FX.isAdmin(USER);
+  document.querySelector('.navbtn[data-v="leads"]').hidden=!canLeads;
+  if(cfgd&&!canLeads&&(currentView==='leads'||currentView==='admin'||(currentView==='account'&&!USER)))show('raas');
+  if(!cfgd&&(currentView==='admin'||currentView==='account'))show('raas');
+  if(USER&&wasNull)cloudLoad();
+  if(currentView==='account')renderAccount();
+}
+document.getElementById('gate_signup').onclick=()=>FX&&FX.openAuth('signup');
+document.getElementById('gate_login').onclick=()=>FX&&FX.openAuth('login');
+if(FX)FX.wireBuyButtons(document);
+
+/* arranque: esperar a que Firebase/Supabase procese el enlace de activación/Google antes de tocar el #hash */
+const startHash=location.hash.slice(1);
+currentView=(/=/.test(startHash)||!startHash)?'raas':startHash;
+setLang(FX?FX.getLang():((navigator.language||'es').slice(0,2)));
+if(FX){FX.onAuth((u)=>applyUser(u));FX.getUser().then(u=>{applyUser(u);if(/access_token|type=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search+'#'+currentView);})}
+else applyUser(null);
+</script>
+</body>
+</html>

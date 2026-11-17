@@ -1,0 +1,70 @@
+rules_version = '2';
+// =====================================================================
+// FERRO · Reglas de seguridad de Firestore  (Limly LLC)
+// Dónde pegarlas: Firebase → Firestore Database → pestaña "Reglas" (Rules)
+//                 → borra todo lo que hay → pega este archivo completo → "Publicar".
+// Si cambias el correo administrador, cámbialo en isAdmin() y en assets/config.js.
+// =====================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['manyosa@limly.io'];
+    }
+    function signedIn() { return request.auth != null; }
+    function str(v, max) { return v is string && v.size() <= max; }
+    function optStr(d, k, max) { return !(k in d) || d[k] == null || str(d[k], max); }
+    function validEmail(e) { return e is string && e.size() <= 254 && e.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'); }
+
+    // Suscriptores del índice (formulario de la landing): cualquiera crea, solo admin lee.
+    match /subscribers/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['email','country','role','lang','source','created_at'])
+                    && validEmail(request.resource.data.email)
+                    && optStr(request.resource.data, 'country', 80)
+                    && optStr(request.resource.data, 'role', 80)
+                    && optStr(request.resource.data, 'lang', 5)
+                    && optStr(request.resource.data, 'source', 40)
+                    && request.resource.data.created_at == request.time;
+      allow read, delete: if isAdmin();
+    }
+
+    // Mensajes de contacto y lista de espera: cualquiera crea, solo admin lee y cambia el estado.
+    match /contact_messages/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name','email','company','country','topic','message','lang','user_id','status','created_at'])
+                    && validEmail(request.resource.data.email)
+                    && str(request.resource.data.message, 5000)
+                    && optStr(request.resource.data, 'name', 120)
+                    && optStr(request.resource.data, 'company', 160)
+                    && optStr(request.resource.data, 'country', 80)
+                    && optStr(request.resource.data, 'topic', 40)
+                    && optStr(request.resource.data, 'lang', 5)
+                    && request.resource.data.status == 'new'
+                    && (!('user_id' in request.resource.data) || (signedIn() && request.resource.data.user_id == request.auth.uid))
+                    && request.resource.data.created_at == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Perfil de cada usuario: cada uno el suyo; admin puede leer todos.
+    match /profiles/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid
+                            && request.resource.data.keys().hasOnly(['email','full_name','company','role','country','lang','marketing_opt_in','terms_accepted_at','created_at','last_login','updated_at'])
+                            && optStr(request.resource.data, 'full_name', 120)
+                            && optStr(request.resource.data, 'company', 160)
+                            && optStr(request.resource.data, 'role', 80)
+                            && optStr(request.resource.data, 'country', 80);
+      allow delete: if isAdmin();
+
+      // Escenarios guardados de los modelos: solo el dueño.
+      match /scenarios/{model} {
+        allow read, write: if signedIn() && request.auth.uid == uid
+                           && model in ['raas','gpu','dc'];
+      }
+    }
+
+    // Todo lo demás, cerrado.
+    match /{document=**} { allow read, write: if false; }
+  }
+}
